@@ -1,0 +1,29 @@
+<!-- Views/Usuarios/Delete.cshtml -->
+@model ECommerceJuegos.Models.Usuario
+@{ ViewData["Title"] = "Borrar Usuario"; }
+
+<h1>Borrar Usuario</h1>
+<h3 class="text-danger">Estas seguro de que deseas eliminar este usuario?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Id</dt>
+        <dd class="col-sm-10">@Model.UsuarioId</dd>
+        
+        <dt class="col-sm-2">Email</dt>
+        <dd class="col-sm-10">@Model.Email</dd>
+        
+        <dt class="col-sm-2">Rol</dt>
+        <dd class="col-sm-10">@Model.Rol</dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="UsuarioId" />
+        <input type="submit" value="Borrar" class="btn btn-danger" /> 
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger mt-3">@ViewBag.Error</div>
+        }
+    </form>
+</div>

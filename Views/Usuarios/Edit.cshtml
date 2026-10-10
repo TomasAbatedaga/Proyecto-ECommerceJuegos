@@ -1,0 +1,40 @@
+<!-- Views/Usuarios/Edit.cshtml -->
+@model ECommerceJuegos.Models.Usuario
+@{ ViewData["Title"] = "Editar Usuario"; }
+
+<h1>Editar Usuario</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="UsuarioId" />
+            <div class="form-group mb-3">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" type="email" class="form-control" required />
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Contrasenia" class="control-label">Contrasenia</label>
+                <input asp-for="Contrasenia" type="password" class="form-control" required />
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Rol" class="control-label"></label>
+                <select asp-for="Rol" class="form-control">
+                    <option value="Cliente">Cliente</option>
+                    <option value="Administrador">Administrador</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="AvatarUrl" class="control-label">URL Avatar (Opcional)</label>
+                <input asp-for="AvatarUrl" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Actualizar" class="btn btn-warning" />
+                <a asp-action="Index" class="btn btn-secondary">Volver al listado</a>
+            </div>
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger mt-3">@ViewBag.Error</div>
+            }
+        </form>
+    </div>
+</div>

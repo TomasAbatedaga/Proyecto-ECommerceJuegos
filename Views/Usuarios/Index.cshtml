@@ -1,0 +1,32 @@
+<!-- Views/Usuarios/Index.cshtml -->
+@model IEnumerable<ECommerceJuegos.Models.Usuario>
+@{ ViewData["Title"] = "Usuarios"; }
+
+<h1>Gestion de Usuarios</h1>
+<p>
+    <a asp-action="Create" class="btn btn-primary">Crear Nuevo</a>
+</p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model) {
+        <tr>
+            <td>@item.UsuarioId</td>
+            <td>@item.Email</td>
+            <td>@item.Rol</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.UsuarioId" class="btn btn-warning btn-sm">Editar</a>
+                <a asp-action="Details" asp-route-id="@item.UsuarioId" class="btn btn-info btn-sm">Detalles</a>
+                <a asp-action="Delete" asp-route-id="@item.UsuarioId" class="btn btn-danger btn-sm">Borrar</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
