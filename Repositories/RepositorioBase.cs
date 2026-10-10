@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace ECommerceJuegos.Models
+namespace ECommerceJuegos.Repositories
 {
     public abstract class RepositorioBase
     {
