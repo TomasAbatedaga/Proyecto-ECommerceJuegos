@@ -1,3 +1,4 @@
+using ECommerceJuegos.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -7,6 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // servicios MVC y API
 builder.Services.AddControllersWithViews();
+
+// Inyección de dependencias
+builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 
 // Configurar Autenticación
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
