@@ -4,6 +4,9 @@ namespace ECommerceJuegos.Repositories;
 
 public interface IRepositorioUsuario
 {
+    int ActualizarAvatar(int usuarioId, string avatarUrl, string? avatarAnterior);
+    int ContarUsuarios();
+    IList<Usuario> ObtenerPagina(int pagina, int tamanoPagina);
     int Alta(Usuario usuario);
     int Baja(int id);
     int Modificacion(Usuario usuario);

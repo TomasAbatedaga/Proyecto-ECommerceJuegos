@@ -1,0 +1,31 @@
+@model ECommerceJuegos.ViewModels.PerfilViewModel
+@{ ViewData["Title"] = "Mi perfil"; }
+
+<h1>Mi perfil</h1>
+@if (TempData["MensajePerfil"] is string mensaje)
+{
+    <div class="alert alert-success">@mensaje</div>
+}
+@if (!string.IsNullOrEmpty(Model.AvatarUrl))
+{
+    <img src="@Url.Content(Model.AvatarUrl)" alt="Avatar actual" width="120" height="120" class="rounded mb-3" style="object-fit: cover;" />
+}
+else
+{
+    <div class="rounded bg-light border d-flex align-items-center justify-content-center mb-3" style="width:120px;height:120px;" role="img" aria-label="Sin avatar">Sin avatar</div>
+}
+<dl class="row">
+    <dt class="col-sm-2">Email</dt><dd class="col-sm-10">@Model.Email</dd>
+    <dt class="col-sm-2">Rol</dt><dd class="col-sm-10">@Model.Rol</dd>
+    <dt class="col-sm-2">Estado</dt><dd class="col-sm-10">@(Model.EstadoActivo ? "Activo" : "Inactivo")</dd>
+</dl>
+<form asp-action="Perfil" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="Avatar" class="form-label">Nuevo avatar</label>
+        <input asp-for="Avatar" type="file" accept=".jpg,.jpeg,.png,.webp" class="form-control" />
+        <span asp-validation-for="Avatar" class="text-danger"></span>
+        <div class="form-text">JPG, PNG o WebP. Máximo 2 MB.</div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar avatar</button>
+</form>

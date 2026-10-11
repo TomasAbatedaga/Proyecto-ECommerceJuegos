@@ -102,6 +102,47 @@ public class RepositorioUsuario : RepositorioBase, IRepositorioUsuario
         return usuario;
     }
 
+
+
+    public int ActualizarAvatar(int usuarioId, string avatarUrl, string? avatarAnterior)
+    {
+        using var connection = new MySqlConnection(ConnectionString);
+        using var command = new MySqlCommand(@"
+            UPDATE Usuarios SET AvatarUrl = @avatar
+            WHERE UsuarioId = @id AND AvatarUrl <=> @anterior", connection);
+        command.Parameters.AddWithValue("@avatar", avatarUrl);
+        command.Parameters.AddWithValue("@id", usuarioId);
+        command.Parameters.AddWithValue("@anterior", (object?)avatarAnterior ?? DBNull.Value);
+        connection.Open();
+        return command.ExecuteNonQuery();
+    }
+
+    public int ContarUsuarios()
+    {
+        using var connection = new MySqlConnection(ConnectionString);
+        using var command = new MySqlCommand("SELECT COUNT(*) FROM Usuarios", connection);
+        connection.Open();
+        return Convert.ToInt32(command.ExecuteScalar());
+    }
+
+    public IList<Usuario> ObtenerPagina(int pagina, int tamanoPagina)
+    {
+        pagina = Math.Max(1, pagina);
+        tamanoPagina = Math.Clamp(tamanoPagina, 1, 50);
+        using var connection = new MySqlConnection(ConnectionString);
+        using var command = new MySqlCommand(@"
+            SELECT UsuarioId, Email, Rol, AvatarUrl, EstadoActivo
+            FROM Usuarios ORDER BY UsuarioId
+            LIMIT @cantidad OFFSET @offset", connection);
+        command.Parameters.AddWithValue("@cantidad", tamanoPagina);
+        command.Parameters.AddWithValue("@offset", ((long)pagina - 1) * tamanoPagina);
+        connection.Open();
+        using var reader = command.ExecuteReader();
+        var usuarios = new List<Usuario>();
+        while (reader.Read()) usuarios.Add(LeerUsuario(reader));
+        return usuarios;
+    }
+
     private static Usuario LeerUsuario(MySqlDataReader reader) => new()
     {
         UsuarioId = reader.GetInt32(0),

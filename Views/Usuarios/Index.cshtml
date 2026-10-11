@@ -1,4 +1,4 @@
-@model IEnumerable<ECommerceJuegos.ViewModels.UsuarioResumenViewModel>
+@model ECommerceJuegos.ViewModels.UsuariosIndexViewModel
 @{ ViewData["Title"] = "Usuarios"; }
 
 <h1>Gestión de usuarios</h1>
@@ -10,7 +10,7 @@
 <table class="table table-striped">
     <thead><tr><th>Id</th><th>Email</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
     <tbody>
-    @foreach (var item in Model)
+    @foreach (var item in Model.Usuarios)
     {
         <tr>
             <td>@item.UsuarioId</td>
@@ -29,3 +29,30 @@
     }
     </tbody>
 </table>
+
+<p>Total de usuarios: @Model.TotalRegistros</p>
+@if (Model.TotalRegistros == 0)
+{
+    <p>No hay usuarios para mostrar.</p>
+}
+<nav aria-label="Paginación de usuarios">
+    <ul class="pagination">
+        @if (Model.TieneAnterior)
+        {
+            <li class="page-item"><a class="page-link" asp-action="Index" asp-route-pagina="@(Model.PaginaActual - 1)">Anterior</a></li>
+        }
+        else
+        {
+            <li class="page-item disabled"><span class="page-link" aria-disabled="true">Anterior</span></li>
+        }
+        <li class="page-item"><span class="page-link">@(Model.PaginaActual) / @Model.TotalPaginas</span></li>
+        @if (Model.TieneSiguiente)
+        {
+            <li class="page-item"><a class="page-link" asp-action="Index" asp-route-pagina="@(Model.PaginaActual + 1)">Siguiente</a></li>
+        }
+        else
+        {
+            <li class="page-item disabled"><span class="page-link" aria-disabled="true">Siguiente</span></li>
+        }
+    </ul>
+</nav>
