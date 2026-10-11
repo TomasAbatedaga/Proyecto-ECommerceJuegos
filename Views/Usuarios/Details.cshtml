@@ -1,24 +1,13 @@
-@model ECommerceJuegos.Models.Usuario
-@{ ViewData["Title"] = "Detalles del Usuario"; }
-
-<h1>Detalles del Usuario</h1>
-<div>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">Id</dt>
-        <dd class="col-sm-10">@Model.UsuarioId</dd>
-        
-        <dt class="col-sm-2">Email</dt>
-        <dd class="col-sm-10">@Model.Email</dd>
-        
-        <dt class="col-sm-2">Rol</dt>
-        <dd class="col-sm-10">@Model.Rol</dd>
-
-        <dt class="col-sm-2">Avatar URL</dt>
-        <dd class="col-sm-10">@Model.AvatarUrl</dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.UsuarioId" class="btn btn-warning">Editar</a>
-    <a asp-action="Index" class="btn btn-secondary">Volver al listado</a>
-</div>
+@model ECommerceJuegos.ViewModels.UsuarioResumenViewModel
+@{ ViewData["Title"] = "Detalles del usuario"; }
+<h1>Detalles del usuario</h1>
+<hr />
+<dl class="row">
+    <dt class="col-sm-2">Id</dt><dd class="col-sm-10">@Model.UsuarioId</dd>
+    <dt class="col-sm-2">Email</dt><dd class="col-sm-10">@Model.Email</dd>
+    <dt class="col-sm-2">Rol</dt><dd class="col-sm-10">@Model.Rol</dd>
+    <dt class="col-sm-2">Estado</dt><dd class="col-sm-10">@(Model.EstadoActivo ? "Activo" : "Inactivo")</dd>
+</dl>
+<p>Avatar URL: @Model.AvatarUrl</p>
+<a asp-action="Edit" asp-route-id="@Model.UsuarioId" class="btn btn-warning">Editar</a>
+<a asp-action="Index" class="btn btn-secondary">Volver al listado</a>

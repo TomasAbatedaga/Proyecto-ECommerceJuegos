@@ -1,0 +1,33 @@
+@model ECommerceJuegos.ViewModels.RegistroViewModel
+@{ ViewData["Title"] = "Registrarse"; }
+
+<h1>Registrarse</h1>
+<hr />
+<div class="row">
+<div class="col-md-4">
+<form asp-action="Registro" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group mb-3">
+        <label asp-for="Email" class="control-label">Email</label>
+        <input asp-for="Email" type="email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-group mb-3">
+        <label asp-for="Contrasenia" class="control-label">Contraseña</label>
+        <input asp-for="Contrasenia" type="password" class="form-control" />
+        <span asp-validation-for="Contrasenia" class="text-danger"></span>
+    </div>
+    <div class="form-group mb-3">
+        <label asp-for="ConfirmarContrasenia" class="control-label">Confirmar contraseña</label>
+        <input asp-for="ConfirmarContrasenia" type="password" class="form-control" />
+        <span asp-validation-for="ConfirmarContrasenia" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Registrarse</button>
+    <a asp-action="Login">Iniciar sesión</a>
+</form>
+</div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,39 +1,36 @@
-@model ECommerceJuegos.Models.Usuario
-@{ ViewData["Title"] = "Editar Usuario"; }
+@model ECommerceJuegos.ViewModels.UsuarioEditViewModel
+@{ ViewData["Title"] = "Editar usuario"; }
 
-<h1>Editar Usuario</h1>
+<h1>Editar usuario</h1>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <input type="hidden" asp-for="UsuarioId" />
-            <div class="form-group mb-3">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" type="email" class="form-control" required />
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="Contrasenia" class="control-label">Contrasenia</label>
-                <input asp-for="Contrasenia" type="password" class="form-control" required />
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="Rol" class="control-label"></label>
-                <select asp-for="Rol" class="form-control">
-                    <option value="Cliente">Cliente</option>
-                    <option value="Administrador">Administrador</option>
-                </select>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="AvatarUrl" class="control-label">URL Avatar (Opcional)</label>
-                <input asp-for="AvatarUrl" class="form-control" />
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Actualizar" class="btn btn-warning" />
-                <a asp-action="Index" class="btn btn-secondary">Volver al listado</a>
-            </div>
-            @if (ViewBag.Error != null)
-            {
-                <div class="alert alert-danger mt-3">@ViewBag.Error</div>
-            }
-        </form>
+<div class="col-md-4">
+<form asp-action="Edit" asp-route-id="@Model.UsuarioId" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="UsuarioId" />
+    <div class="form-group mb-3">
+        <label asp-for="Email" class="control-label">Email</label>
+        <input asp-for="Email" type="email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
+    <div class="form-group mb-3">
+        <label asp-for="Rol" class="control-label"></label>
+        <select asp-for="Rol" class="form-control">
+            <option value="Cliente">Cliente</option>
+            <option value="Administrador">Administrador</option>
+        </select>
+        <span asp-validation-for="Rol" class="text-danger"></span>
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="EstadoActivo" class="form-check-input" />
+        <label asp-for="EstadoActivo" class="form-check-label">Activo</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Actualizar</button>
+    <a asp-action="Index" class="btn btn-secondary">Volver al listado</a>
+</form>
 </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

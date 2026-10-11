@@ -1,23 +1,22 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ECommerceJuegos.Models
+namespace ECommerceJuegos.Models;
+
+public class Usuario
 {
-    public class Usuario
-    {
-        [Key]
-        public int UsuarioId { get; set; }
+    [Key]
+    public int UsuarioId { get; set; }
 
-        [Required, EmailAddress]
-        public string Email { get; set; } = "";
+    [Required, EmailAddress, StringLength(254)]
+    public string Email { get; set; } = "";
 
-        [Required]
-        public string Contrasenia { get; set; } = "";
+    [Required, StringLength(255)]
+    public string ContraseniaHash { get; set; } = "";
 
-        [Required]
-        public string Rol { get; set; } = "";
+    [Required, RegularExpression("^(Administrador|Cliente)$")]
+    public string Rol { get; set; } = "";
 
-        public string? AvatarUrl { get; set; }
+    public string? AvatarUrl { get; set; }
 
-        public bool EstadoActivo { get; set; } = true;
-    }
+    public bool EstadoActivo { get; set; } = true;
 }

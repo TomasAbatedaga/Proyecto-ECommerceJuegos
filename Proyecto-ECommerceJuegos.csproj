@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ECommerceJuegos</RootNamespace>
+    <UserSecretsId>e8ef0f4f-1267-4dec-a85a-4311ae3e3a53</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

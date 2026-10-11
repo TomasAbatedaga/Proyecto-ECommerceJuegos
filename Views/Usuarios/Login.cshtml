@@ -1,29 +1,28 @@
-@{ 
-    ViewData["Title"] = "Iniciar Sesion"; 
-}
+@model ECommerceJuegos.ViewModels.LoginViewModel
+@{ ViewData["Title"] = "Iniciar sesión"; }
 
-<h1>Iniciar Sesion</h1>
+<h1>Iniciar sesión</h1>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Login" method="post">
-            <div class="form-group mb-3">
-                <label for="email" class="control-label">Email</label>
-                <input type="email" name="email" id="email" class="form-control" required />
-            </div>
-            <div class="form-group mb-3">
-                <label for="contrasenia" class="control-label">Contrasenia</label>
-                <input type="password" name="contrasenia" id="contrasenia" class="form-control" required />
-            </div>
-            
-            <div class="form-group">
-                <input type="submit" value="Ingresar" class="btn btn-primary" />
-            </div>
-            
-            @if (ViewBag.Error != null)
-            {
-                <div class="alert alert-danger mt-3">@ViewBag.Error</div>
-            }
-        </form>
+<div class="col-md-4">
+<form asp-action="Login" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group mb-3">
+        <label asp-for="Email" class="control-label">Email</label>
+        <input asp-for="Email" type="email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
+    <div class="form-group mb-3">
+        <label asp-for="Contrasenia" class="control-label">Contraseña</label>
+        <input asp-for="Contrasenia" type="password" class="form-control" />
+        <span asp-validation-for="Contrasenia" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Ingresar</button>
+    <a asp-action="Registro">Registrarse</a>
+</form>
 </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

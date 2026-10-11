@@ -1,29 +1,29 @@
-@model IEnumerable<ECommerceJuegos.Models.Usuario>
+@model IEnumerable<ECommerceJuegos.ViewModels.UsuarioResumenViewModel>
 @{ ViewData["Title"] = "Usuarios"; }
 
-<h1>Gestion de Usuarios</h1>
-<p>
-    <a asp-action="Create" class="btn btn-primary">Crear Nuevo</a>
-</p>
+<h1>Gestión de usuarios</h1>
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+<p><a asp-action="Create" class="btn btn-primary">Crear nuevo</a></p>
 <table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
+    <thead><tr><th>Id</th><th>Email</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
     <tbody>
-    @foreach (var item in Model) {
+    @foreach (var item in Model)
+    {
         <tr>
             <td>@item.UsuarioId</td>
             <td>@item.Email</td>
             <td>@item.Rol</td>
+            <td>@(item.EstadoActivo ? "Activo" : "Inactivo")</td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.UsuarioId" class="btn btn-warning btn-sm">Editar</a>
                 <a asp-action="Details" asp-route-id="@item.UsuarioId" class="btn btn-info btn-sm">Detalles</a>
-                <a asp-action="Delete" asp-route-id="@item.UsuarioId" class="btn btn-danger btn-sm">Borrar</a>
+                @if (item.EstadoActivo)
+                {
+                    <a asp-action="Delete" asp-route-id="@item.UsuarioId" class="btn btn-danger btn-sm">Desactivar</a>
+                }
             </td>
         </tr>
     }

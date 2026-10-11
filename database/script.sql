@@ -8,7 +8,7 @@ USE ECommerceJuegos;
 CREATE TABLE Usuarios (
     UsuarioId INT NOT NULL AUTO_INCREMENT,
     Email VARCHAR(254) NOT NULL,
-    Contrasenia VARCHAR(255) NOT NULL,
+    ContraseniaHash VARCHAR(255) NOT NULL,
     Rol VARCHAR(20) COLLATE utf8mb4_0900_as_cs NOT NULL,
     AvatarUrl VARCHAR(255) NULL,
     EstadoActivo BOOLEAN NOT NULL DEFAULT TRUE,
@@ -108,14 +108,16 @@ CREATE TABLE Resenas (
         REFERENCES Productos (ProductoId) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Datos exclusivamente académicos. Contraseñas en texto plano para mantener
--- compatibilidad con el login actual; no son credenciales de producción.
+-- Datos exclusivamente académicos. Hashes generados con PasswordHasher<Usuario>.
+-- Acceso de prueba: admin@example.test / AdminPrueba123!
+-- Acceso de prueba: cliente@example.test / ClientePrueba123!
+-- Las contraseñas se documentan aquí; los INSERT almacenan únicamente hashes.
 -- No se crean órdenes ni reseñas. Los códigos siguientes son ficticios.
 START TRANSACTION;
 
-INSERT INTO Usuarios (UsuarioId, Email, Contrasenia, Rol, AvatarUrl, EstadoActivo) VALUES
-    (1, 'admin@example.test', 'AdminPrueba123!', 'Administrador', NULL, TRUE),
-    (2, 'cliente@example.test', 'ClientePrueba123!', 'Cliente', NULL, TRUE);
+INSERT INTO Usuarios (UsuarioId, Email, ContraseniaHash, Rol, AvatarUrl, EstadoActivo) VALUES
+    (1, 'admin@example.test', 'AQAAAAIAAYagAAAAENYYf0ARccEnTMVOmZdLu5o1HWYg00Y1CCX0YBm8fILXUSwHOYqKU+ToLmbJYojXUg==', 'Administrador', NULL, TRUE),
+    (2, 'cliente@example.test', 'AQAAAAIAAYagAAAAEIxMumLmllAFzeYDZCoEF46AK0lycjuISa3ZFpQZpv6Nnk0tnjSI+TGOxr7mpqS9aA==', 'Cliente', NULL, TRUE);
 
 INSERT INTO Categorias (CategoriaId, Nombre) VALUES
     (1, 'Videojuegos'),
