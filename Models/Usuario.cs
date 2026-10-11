@@ -17,5 +17,7 @@ namespace ECommerceJuegos.Models
         public string Rol { get; set; } = "";
 
         public string? AvatarUrl { get; set; }
+
+        public bool EstadoActivo { get; set; } = true;
     }
 }

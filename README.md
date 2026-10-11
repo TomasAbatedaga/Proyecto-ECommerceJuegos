@@ -12,4 +12,4 @@ El DER se incorporará posteriormente.
 
 ## 🗄️ Base de Datos
 
-El proyecto utiliza MySQL. El script SQL se incorporará en el bloque de modelo de datos.
+El proyecto utiliza MySQL 8.0.16 o superior. El esquema inicial y los datos de prueba se encuentran en [database/script.sql](database/script.sql), destinado a una base nueva.
