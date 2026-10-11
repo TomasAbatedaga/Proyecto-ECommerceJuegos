@@ -1,4 +1,4 @@
-namespace Proyecto_ECommerceJuegos.Models;
+namespace ECommerceJuegos.Models;
 
 public class ErrorViewModel
 {

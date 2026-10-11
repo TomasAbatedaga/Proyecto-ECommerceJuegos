@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Proyecto_ECommerceJuegos.Models;
+using ECommerceJuegos.Models;
 
-namespace Proyecto_ECommerceJuegos.Controllers;
+namespace ECommerceJuegos.Controllers;
 
 public class HomeController : Controller
 {
@@ -13,6 +13,12 @@ public class HomeController : Controller
 
     public IActionResult Privacy()
     {
+        return View();
+    }
+
+    public IActionResult Restringido()
+    {
+        Response.StatusCode = StatusCodes.Status403Forbidden;
         return View();
     }
 

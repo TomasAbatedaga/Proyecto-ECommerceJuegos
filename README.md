@@ -8,17 +8,8 @@ Esta es una pagina para compra de juegos y softwares
 
 ## 📐 Modelado de Datos
 
-A continuación se presenta el esquema del modelo de datos correspondiente a la aplicación.
-
-Diagrama Entidad-Relación (DER) / Diagrama de Clases
-
-![Diagrama de Propietarios e Inquilinos](poner la direccion cuando lo tenga)
+El DER se incorporará posteriormente.
 
 ## 🗄️ Base de Datos
 
-El proyecto utiliza MySQL como sistema de gestión de base de datos.
-
-El repositorio incluirá un archivo .sql con las sentencias necesarias para crear e inicializar la base de datos del sistema.
-
-## Instrucciones para levantar la base de datos
-
+El proyecto utiliza MySQL. El script SQL se incorporará en el bloque de modelo de datos.
