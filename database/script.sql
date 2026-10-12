@@ -21,7 +21,8 @@ CREATE TABLE Usuarios (
 CREATE TABLE Categorias (
     CategoriaId INT NOT NULL AUTO_INCREMENT,
     Nombre VARCHAR(100) NOT NULL,
-    PRIMARY KEY (CategoriaId)
+    PRIMARY KEY (CategoriaId),
+    CONSTRAINT UQ_Categorias_Nombre UNIQUE (Nombre)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE Productos (
@@ -124,8 +125,8 @@ INSERT INTO Categorias (CategoriaId, Nombre) VALUES
     (2, 'Ofimática');
 
 INSERT INTO Productos (ProductoId, Nombre, Descripcion, Precio, CategoriaId, EstadoActivo, PortadaRuta) VALUES
-    (1, 'Juego de ejemplo', 'Videojuego ficticio para pruebas académicas.', 15000.00, 1, TRUE, NULL),
-    (2, 'Suite de oficina de ejemplo', 'Software ficticio para pruebas académicas.', 25000.00, 2, TRUE, NULL);
+    (1, 'Grand Theft Auto VI', 'Videojuego de acción y mundo abierto. Licencia digital para demostración académica del sistema.', 15000.00, 1, TRUE, NULL),
+    (2, 'Microsoft Office 2024 Home & Business - Licencia digital', 'Suite de productividad con aplicaciones de oficina. Licencia digital utilizada como producto de demostración académica.', 25000.00, 2, TRUE, NULL);
 
 INSERT INTO ClavesDigitales (ClaveDigitalId, ProductoId, Codigo, Estado) VALUES
     (1, 1, 'DEMO-JUEGO-001', 'Disponible'),

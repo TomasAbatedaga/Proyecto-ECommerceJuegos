@@ -1,0 +1,9 @@
+@model ECommerceJuegos.ViewModels.ProductoListadoViewModel
+@{ ViewData["Title"] = "Desactivar producto"; }
+<h1>Desactivar producto</h1>
+<p>¿Desactivar <strong>@Model.Nombre</strong>? Se conservarán los datos y la portada. Podés reactivarlo desde Editar.</p>
+<form asp-action="Delete" asp-route-id="@Model.ProductoId" method="post">
+ <div asp-validation-summary="All" class="text-danger"></div>
+ <button type="submit" class="btn btn-danger">Desactivar producto</button>
+ <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

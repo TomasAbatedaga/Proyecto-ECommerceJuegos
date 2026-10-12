@@ -1,0 +1,11 @@
+@model Categoria
+@{ ViewData["Title"] = "Crear categoría"; }
+<h1>@ViewData["Title"]</h1>
+<form asp-action="Create" asp-route-id="@Model.CategoriaId" method="post">
+ <div asp-validation-summary="All" class="text-danger"></div>
+ <input asp-for="CategoriaId" type="hidden" />
+ <div class="mb-3"><label asp-for="Nombre" class="form-label"></label><input asp-for="Nombre" class="form-control" maxlength="100" /><span asp-validation-for="Nombre" class="text-danger"></span></div>
+ <button class="btn btn-primary" type="submit">Guardar</button>
+ <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

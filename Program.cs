@@ -13,6 +13,8 @@ builder.Services.AddControllersWithViews();
 
 // Inyección de dependencias
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
+builder.Services.AddScoped<IRepositorioCategoria, RepositorioCategoria>();
+builder.Services.AddScoped<IRepositorioProducto, RepositorioProducto>();
 builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
 
 // Configurar Autenticación
@@ -40,7 +42,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // autorizaciones por roles
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("Administrador", policy => 
+    options.AddPolicy("Administrador", policy =>
         policy.RequireClaim(ClaimTypes.Role, "Administrador"));
 });
 

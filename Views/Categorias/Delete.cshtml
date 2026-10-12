@@ -1,0 +1,10 @@
+@model Categoria
+@{ ViewData["Title"] = "Eliminar categoría"; }
+<h1>Eliminar categoría</h1>
+<p>¿Eliminar la categoría <strong>@Model.Nombre</strong>?</p>
+<p>Solo puede eliminarse si no tiene productos asociados, incluso inactivos.</p>
+<form asp-action="Delete" asp-route-id="@Model.CategoriaId" method="post">
+ <div asp-validation-summary="All" class="text-danger"></div>
+ <button type="submit" class="btn btn-danger">Eliminar</button>
+ <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

@@ -1,0 +1,5 @@
+@model ECommerceJuegos.ViewModels.ProductoListadoViewModel
+@{ ViewData["Title"] = Model.Nombre; }
+<h1>Detalle de producto</h1>
+<partial name="_Detalle" model="Model" />
+<a asp-action="Catalogo" class="btn btn-secondary">Volver al catálogo</a>

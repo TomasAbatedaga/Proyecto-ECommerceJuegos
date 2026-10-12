@@ -1,0 +1,5 @@
+@model ECommerceJuegos.ViewModels.ProductoListadoViewModel
+<div class="row mb-3"><div class="col-md-4">
+@if (!string.IsNullOrEmpty(Model.PortadaRuta)) { <img src="@Model.PortadaRuta" alt="Portada de @Model.Nombre" class="img-fluid" style="max-height:400px" /> }
+else { <div class="bg-light text-muted p-5">Sin portada</div> }
+</div><div class="col-md-8"><h2>@Model.Nombre</h2><p style="white-space:pre-wrap">@Model.Descripcion</p><p>Categoría: @Model.CategoriaNombre</p><p class="fs-4">@Model.Precio.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("es-AR"))</p></div></div>

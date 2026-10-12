@@ -1,0 +1,11 @@
+@model ECommerceJuegos.ViewModels.ProductoFormViewModel
+@{ ViewData["Title"] = "Crear producto"; }
+<h1>@ViewData["Title"]</h1>
+<form asp-action="Create" asp-route-id="@Model.ProductoId" method="post" enctype="multipart/form-data">
+ <input asp-for="ProductoId" type="hidden" />
+ <partial name="_Formulario" model="Model" />
+
+ <button type="submit" class="btn btn-primary">Guardar</button>
+ <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

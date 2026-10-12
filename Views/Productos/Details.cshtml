@@ -1,0 +1,7 @@
+@model ECommerceJuegos.ViewModels.ProductoListadoViewModel
+@{ ViewData["Title"] = "Detalle administrativo"; }
+<h1>Detalle administrativo</h1>
+<p>Id: @Model.ProductoId · Estado: @(Model.EstadoActivo ? "Activo" : "Inactivo")</p>
+<partial name="_Detalle" model="Model" />
+<a asp-action="Edit" asp-route-id="@Model.ProductoId" class="btn btn-primary">Editar</a>
+<a asp-action="Index" class="btn btn-secondary">Volver</a>

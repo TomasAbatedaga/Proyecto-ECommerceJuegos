@@ -1,0 +1,6 @@
+@model ECommerceJuegos.ViewModels.ProductosIndexViewModel
+<p>Página @Model.PaginaActual de @Model.TotalPaginas · @Model.TotalRegistros productos</p>
+<nav aria-label="Páginas de productos">
+ @if (Model.TieneAnterior) { <a asp-action="@ViewContext.RouteData.Values["action"]" asp-route-pagina="@(Model.PaginaActual - 1)" class="btn btn-outline-primary">Anterior</a> }
+ @if (Model.TieneSiguiente) { <a asp-action="@ViewContext.RouteData.Values["action"]" asp-route-pagina="@(Model.PaginaActual + 1)" class="btn btn-outline-primary">Siguiente</a> }
+</nav>
