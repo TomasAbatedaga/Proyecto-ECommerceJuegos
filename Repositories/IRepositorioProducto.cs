@@ -12,4 +12,5 @@ public interface IRepositorioProducto
     IList<ProductoListadoViewModel> ObtenerPagina(int pagina, int cantidad);
     int ContarActivos();
     IList<ProductoListadoViewModel> ObtenerPaginaActivos(int pagina, int cantidad);
+    Task<IEnumerable<ProductoBuscadorDTO>> BuscarPorNombreAsync(string query);
 }

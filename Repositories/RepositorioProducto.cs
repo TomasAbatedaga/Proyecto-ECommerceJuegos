@@ -86,4 +86,29 @@ public class RepositorioProducto : RepositorioBase, IRepositorioProducto
         PortadaRuta = rd.IsDBNull(6) ? null : rd.GetString(6),
         CategoriaNombre = rd.GetString(7)
     };
+    public async Task<IEnumerable<ProductoBuscadorDTO>> BuscarPorNombreAsync(string query)
+{
+    var resultados = new List<ProductoBuscadorDTO>();
+    using (var conexion = new MySqlConnection(ConnectionString))
+    {
+        await conexion.OpenAsync();
+        string sql = "SELECT ProductoId, Nombre FROM Productos WHERE Nombre LIKE @query AND EstadoActivo = TRUE LIMIT 10;";
+        using (var comando = new MySqlCommand(sql, conexion))
+        {
+            comando.Parameters.AddWithValue("@query", $"%{query}%");
+            using (var lector = await comando.ExecuteReaderAsync())
+            {
+                while (await lector.ReadAsync())
+                {
+                    resultados.Add(new ProductoBuscadorDTO
+                    {
+                        ProductoId = lector.GetInt32("ProductoId"),
+                        Nombre = lector.GetString("Nombre")
+                    });
+                }
+            }
+        }
+    }
+    return resultados;
+}
 }

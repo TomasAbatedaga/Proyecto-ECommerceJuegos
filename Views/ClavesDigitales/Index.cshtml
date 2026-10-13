@@ -1,0 +1,184 @@
+@{
+    ViewData["Title"] = "Stock de Claves Digitales";
+}
+
+<div id="appVue" class="container mt-4">
+    <h2>Administración de Stock de Claves</h2>
+    <hr />
+
+    <button class="btn btn-primary mb-3" @@click="abrirModal(null)">+ Nueva Clave</button>
+
+    <div v-if="error" class="alert alert-danger">{{ error }}</div>
+    <div v-if="exito" class="alert alert-success">{{ exito }}</div>
+
+    <table class="table table-bordered table-hover mt-2">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Producto ID</th>
+                <th>Código</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="c in claves" :key="c.claveDigitalId">
+                <td>{{ c.claveDigitalId }}</td>
+                <td>{{ c.productoId }}</td>
+                <td>{{ c.codigo }}</td>
+                <td>
+                    <span :class="c.estado === 'Disponible' ? 'badge bg-success' : 'badge bg-secondary'">
+                        {{ c.estado }}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-warning me-2" @@click="abrirModal(c)" :disabled="c.estado === 'Vendida'">Editar</button>
+                    <button class="btn btn-sm btn-danger" @@click="eliminar(c.claveDigitalId)" :disabled="c.estado === 'Vendida'">Eliminar</button>
+                </td>
+            </tr>
+            <tr v-if="claves.length === 0">
+                <td colspan="5" class="text-center">No hay claves registradas.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="modal" tabindex="-1" :class="{ 'd-block': modalVisible }" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ editando ? 'Editar Clave' : 'Nueva Clave' }}</h5>
+                    <button type="button" class="btn-close" @@click="cerrarModal"></button>
+                </div>
+                <div class="modal-body">
+                    
+                    <div class="mb-3" v-if="!editando">
+                        <label class="form-label">Buscar Producto (min. 2 letras)</label>
+                        <input type="text" class="form-control" v-model="busqueda" @@input="buscarAjax" placeholder="Ej: GTA" />
+                        <ul class="list-group mt-2" v-if="resultados.length > 0">
+                            <li class="list-group-item list-group-item-action" style="cursor:pointer;"
+                                v-for="p in resultados" :key="p.productoId" 
+                                @@click="seleccionarProducto(p)">
+                                {{ p.nombre }} (ID: {{ p.productoId }})
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Producto ID</label>
+                        <input type="number" class="form-control" v-model="form.productoId" readonly />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Código Digital</label>
+                        <input type="text" class="form-control" v-model="form.codigo" placeholder="XXXX-XXXX-XXXX-XXXX" />
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="cerrarModal">Cancelar</button>
+                    <button type="button" class="btn btn-success" @@click="guardar" :disabled="!form.productoId || !form.codigo">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp, ref, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const claves = ref([]);
+                const modalVisible = ref(false);
+                const editando = ref(false);
+                const error = ref('');
+                const exito = ref('');
+                
+                const busqueda = ref('');
+                const resultados = ref([]);
+
+                const form = ref({ claveDigitalId: 0, productoId: null, codigo: '', estado: 'Disponible' });
+
+                const cargarTabla = async () => {
+                    const res = await fetch('/ClavesDigitales/Listar');
+                    claves.value = await res.json();
+                };
+
+                const buscarAjax = async () => {
+                    if (busqueda.value.length < 2) {
+                        resultados.value = [];
+                        return;
+                    }
+                    const res = await fetch(`/ClavesDigitales/BuscarProductos?q=${encodeURIComponent(busqueda.value)}`);
+                    resultados.value = await res.json();
+                };
+
+                const seleccionarProducto = (p) => {
+                    form.value.productoId = p.productoId;
+                    busqueda.value = p.nombre;
+                    resultados.value = []; 
+                };
+
+                const abrirModal = (c) => {
+                    error.value = '';
+                    if (c) {
+                        editando.value = true;
+                        form.value = { ...c };
+                    } else {
+                        editando.value = false;
+                        busqueda.value = '';
+                        resultados.value = [];
+                        form.value = { claveDigitalId: 0, productoId: null, codigo: '', estado: 'Disponible' };
+                    }
+                    modalVisible.value = true;
+                };
+
+                const cerrarModal = () => { modalVisible.value = false; };
+
+                const guardar = async () => {
+                    error.value = '';
+                    exito.value = '';
+                    const url = editando.value ? '/ClavesDigitales/Editar' : '/ClavesDigitales/Crear';
+                    const method = editando.value ? 'PUT' : 'POST';
+
+                    const res = await fetch(url, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(form.value)
+                    });
+
+                    if (res.ok) {
+                        exito.value = "Operación exitosa.";
+                        cerrarModal();
+                        await cargarTabla();
+                    } else {
+                        error.value = await res.text();
+                    }
+                    setTimeout(() => { error.value = ''; exito.value = ''; }, 4000);
+                };
+
+                const eliminar = async (id) => {
+                    if(!confirm('¿Eliminar clave de forma permanente?')) return;
+                    const res = await fetch(`/ClavesDigitales/Eliminar/${id}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        exito.value = "Clave eliminada.";
+                        await cargarTabla();
+                    } else {
+                        error.value = await res.text();
+                    }
+                    setTimeout(() => { error.value = ''; exito.value = ''; }, 4000);
+                };
+
+                onMounted(cargarTabla);
+
+                return {
+                    claves, modalVisible, editando, error, exito,
+                    busqueda, resultados, form, buscarAjax, seleccionarProducto,
+                    abrirModal, cerrarModal, guardar, eliminar
+                };
+            }
+        }).mount('#appVue');
+    </script>
+}
