@@ -4,6 +4,7 @@ using ECommerceJuegos.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
+using System.Security.Claims;
 namespace ECommerceJuegos.Controllers;
 
 [Authorize(Policy = "Administrador")]
@@ -12,20 +13,54 @@ public class ProductosController : Controller
     private const long MaxPortada = 5 * 1024 * 1024;
     private readonly IRepositorioProducto _productos;
     private readonly IRepositorioCategoria _categorias;
+    private readonly IRepositorioResena _resenas;
+    private readonly IRepositorioOrden _ordenes;
     private readonly IWebHostEnvironment _environment;
     private readonly ILogger<ProductosController> _logger;
+
     public ProductosController(IRepositorioProducto productos, IRepositorioCategoria categorias,
+     IRepositorioResena resenas, IRepositorioOrden ordenes,
      IWebHostEnvironment environment, ILogger<ProductosController> logger)
-    { _productos = productos; _categorias = categorias; _environment = environment; _logger = logger; }
+    {   _productos = productos;
+        _categorias = categorias;
+        _resenas = resenas;
+        _ordenes = ordenes;
+        _environment = environment;
+        _logger = logger;
+    }
     [AllowAnonymous, HttpGet]
+    
     public IActionResult Catalogo(int pagina = 1) => View(Listado(pagina, true));
+
     [AllowAnonymous, HttpGet]
-    public IActionResult Detalle(int id)
+    public async Task<IActionResult> Detalle(int id)
     {
         var producto = _productos.ObtenerPorId(id);
-        return producto == null || !producto.EstadoActivo ? NotFound() : View(producto);
+        if (producto == null || !producto.EstadoActivo) return NotFound();
+
+        ViewBag.Resenas = await _resenas.ObtenerPorProductoAsync(id);
+
+        bool puedeResenar = false;
+        Resena? miResenaExistente = null;
+
+        if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(claimId, out int usuarioId))
+            {
+                puedeResenar = await _ordenes.UsuarioComproProductoAsync(usuarioId, id);
+                miResenaExistente = await _resenas.ObtenerPorUsuarioYProductoAsync(usuarioId, id);
+            }
+        }
+
+        ViewBag.PuedeResenar = puedeResenar;
+        ViewBag.MiResena = miResenaExistente;
+
+        return View(producto);
     }
+    
     [HttpGet] public IActionResult Index(int pagina = 1) => View(Listado(pagina, false));
+    
     private ProductosIndexViewModel Listado(int pagina, bool activos)
     {
         const int cantidad = 10;
@@ -40,12 +75,14 @@ public class ProductosController : Controller
             TotalRegistros = total
         };
     }
+    
     [HttpGet]
     public IActionResult Details(int id)
     {
         var producto = _productos.ObtenerPorId(id);
         return producto == null ? NotFound() : View(producto);
     }
+    
     [HttpGet] public IActionResult Create() => Formulario("Create", new ProductoFormViewModel());
     [HttpPost, ValidateAntiForgeryToken]
     [RequestSizeLimit(6 * 1024 * 1024), RequestFormLimits(MultipartBodyLengthLimit = 6 * 1024 * 1024)]

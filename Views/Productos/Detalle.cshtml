@@ -1,8 +1,11 @@
 @model ECommerceJuegos.ViewModels.ProductoListadoViewModel
 @{ ViewData["Title"] = Model.Nombre; }
+
 <h1>Detalle de producto</h1>
 <partial name="_Detalle" model="Model" />
+
 <p class="fw-bold">@(Model.TieneStock ? "Disponible" : "Sin stock")</p>
+
 @if (Model.EstadoActivo && Model.TieneStock)
 {
     if (User.Identity?.IsAuthenticated == true && User.IsInRole("Cliente") && !User.IsInRole("Administrador"))
@@ -18,7 +21,120 @@
         <p><a asp-controller="Usuarios" asp-action="Login">Iniciá sesión para comprar</a></p>
     }
 }
-<a asp-action="Catalogo" class="btn btn-secondary">Volver al catálogo</a>
+<a asp-action="Catalogo" class="btn btn-secondary mb-4">Volver al catalogo</a>
+
+<div class="mt-5 border-top pt-4">
+    <h3 class="mb-4">Resenas de la comunidad</h3>
+
+    @{
+        var resenas = ViewBag.Resenas as IEnumerable<ECommerceJuegos.ViewModels.ResenaViewModel>;
+        bool puedeResenar = ViewBag.PuedeResenar != null && (bool)ViewBag.PuedeResenar;
+        var miResena = ViewBag.MiResena as ECommerceJuegos.Models.Resena;
+
+        double promedio = resenas != null && resenas.Any() ? resenas.Average(r => r.Puntuacion) : 0;
+        int totalResenas = resenas != null ? resenas.Count() : 0;
+    }
+
+    <div class="mb-4">
+        <h4 class="text-warning">
+            @promedio.ToString("0.0") / 5.0 &#9733;
+        </h4>
+        <p class="text-muted">Basado en @totalResenas reseña(s)</p>
+    </div>
+
+    @if (puedeResenar)
+    {
+        <div class="card mb-5 border-primary shadow-sm">
+            <div class="card-header bg-primary text-white">
+                @(miResena != null ? "Edita tu reseña" : "Deja tu reseña")
+            </div>
+            <div class="card-body">
+                <form asp-controller="Resenas" asp-action="Guardar" method="post">
+                    <input type="hidden" name="ProductoId" value="@Model.ProductoId" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Puntuacion</label>
+                        <select name="Puntuacion" class="form-select" style="max-width: 150px;" required>
+                            @for (int i = 5; i >= 1; i--)
+                            {
+                                if (miResena != null && miResena.Puntuacion == i)
+                                {
+                                    <option value="@i" selected>@i Estrellas</option>
+                                }
+                                else
+                                {
+                                    <option value="@i">@i Estrellas</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Comentario (Opcional)</label>
+                        <textarea name="Comentario" class="form-control" rows="3" placeholder="¿Qué te pareció el producto?">@(miResena?.Comentario)</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        @(miResena != null ? "Actualizar Reseña" : "Publicar Reseña")
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
+    else if (User.Identity?.IsAuthenticated == true && User.IsInRole("Cliente"))
+    {
+        <div class="alert alert-secondary">
+            Debes haber comprado este producto para dejar una resena.
+        </div>
+    }
+
+    @if (resenas != null && resenas.Any())
+    {
+        <div class="row">
+            @foreach (var r in resenas)
+            {
+                <div class="col-md-12 mb-3">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-2">
+                                @if (!string.IsNullOrEmpty(r.AvatarUrl))
+                                {
+                                    <img src="@r.AvatarUrl" alt="Avatar" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <div class="rounded-circle bg-secondary me-3 d-flex justify-content-center align-items-center text-white" style="width: 40px; height: 40px;">
+                                        <span class="fs-5">&#128100;</span>
+                                    </div>
+                                }
+                                
+                                <div>
+                                    <h6 class="mb-0">@r.UsuarioEmail.Split('@')[0]</h6>
+                                    <small class="text-muted">@r.Fecha.ToString("dd MMM yyyy")</small>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2 text-warning">
+                                @for(int i=1; i<=5; i++)
+                                {
+                                    if(i <= r.Puntuacion) { <span>&#9733;</span> }
+                                    else { <span>&#9734;</span> }
+                                }
+                            </div>
+                            
+                            <p class="card-text">@r.Comentario</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">No hay resenas todavia. Se el primero en calificarlo luego de comprarlo</p>
+    }
+</div>
+
 @section Scripts {
     <script>
         const formularioCompra = document.getElementById('formComprar');

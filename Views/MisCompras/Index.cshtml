@@ -1,0 +1,87 @@
+@model IEnumerable<ECommerceJuegos.ViewModels.MisComprasViewModel>
+@{
+    ViewData["Title"] = "Mis Compras";
+    int paginaActual = ViewBag.PaginaActual != null ? (int)ViewBag.PaginaActual : 1;
+    int totalPaginas = ViewBag.TotalPaginas != null ? (int)ViewBag.TotalPaginas : 1;
+}
+
+<div class="container mt-4">
+    <h2><i class="bi bi-bag-check-fill"></i> Mi Historial de Compras</h2>
+    <hr />
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center mt-4">
+            <h4>Aun no has realizado ninguna compra.</h4>
+            <p>Explora nuestro catalogo y encuentra tu proximo juego o software favorito</p>
+            <a href="@Url.Action("Catalogo", "Productos")" class="btn btn-primary mt-2">Ir al Catalogo</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive mt-3">
+            <table class="table table-hover align-middle border">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Fecha</th>
+                        <th class="text-center">Portada</th>
+                        <th>Producto</th>
+                        <th>Precio Pagado</th>
+                        <th>Clave de Activación (CD Key)</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var compra in Model)
+                    {
+                        <tr>
+                            <td>@compra.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="text-center">
+                                @if (!string.IsNullOrEmpty(compra.PortadaRuta))
+                                {
+                                    <img src="@compra.PortadaRuta" alt="Portada" style="width: 60px; height: auto; border-radius: 4px;" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted"><small>Sin imagen</small></span>
+                                }
+                            </td>
+                            <td class="fw-bold">@compra.ProductoNombre</td>
+                            <td>$@compra.PrecioPagado.ToString("N2")</td>
+                            <td>
+                                <code class="fs-5 text-success bg-dark p-1 rounded">@compra.CodigoClave</code>
+                            </td>
+                            <td>
+                                <a href="@Url.Action("Detalle", "Productos", new { id = compra.OrdenId })" class="btn btn-sm btn-outline-primary">
+                                    Ver / Reseñar
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (totalPaginas > 1)
+        {
+            <nav aria-label="Navegación de compras" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(paginaActual == 1 ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { pagina = paginaActual - 1 })">Anterior</a>
+                    </li>
+                    
+                    @for (int i = 1; i <= totalPaginas; i++)
+                    {
+                        <li class="page-item @(i == paginaActual ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { pagina = i })">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(paginaActual == totalPaginas ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { pagina = paginaActual + 1 })">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    }
+</div>
