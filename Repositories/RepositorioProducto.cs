@@ -92,10 +92,10 @@ public class RepositorioProducto : RepositorioBase, IRepositorioProducto
     using (var conexion = new MySqlConnection(ConnectionString))
     {
         await conexion.OpenAsync();
-        string sql = "SELECT ProductoId, Nombre FROM Productos WHERE Nombre LIKE @query AND EstadoActivo = TRUE LIMIT 10;";
+        string sql = "SELECT ProductoId, Nombre FROM Productos WHERE Nombre LIKE @query AND EstadoActivo = TRUE ORDER BY Nombre, ProductoId LIMIT 10;";
         using (var comando = new MySqlCommand(sql, conexion))
         {
-            comando.Parameters.AddWithValue("@query", $"%{query}%");
+            comando.Parameters.AddWithValue("@query", $"%{query.Trim()}%");
             using (var lector = await comando.ExecuteReaderAsync())
             {
                 while (await lector.ReadAsync())

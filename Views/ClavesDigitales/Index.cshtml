@@ -3,10 +3,11 @@
 }
 
 <div id="appVue" class="container mt-4">
+    @Html.AntiForgeryToken()
     <h2>Administración de Stock de Claves</h2>
     <hr />
 
-    <button class="btn btn-primary mb-3" @@click="abrirModal(null)">+ Nueva Clave</button>
+    <button class="btn btn-primary mb-3" @@click="abrirModal(null)" :disabled="ocupado">+ Nueva Clave</button>
 
     <div v-if="error" class="alert alert-danger">{{ error }}</div>
     <div v-if="exito" class="alert alert-success">{{ exito }}</div>
@@ -32,8 +33,8 @@
                     </span>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-warning me-2" @@click="abrirModal(c)" :disabled="c.estado === 'Vendida'">Editar</button>
-                    <button class="btn btn-sm btn-danger" @@click="eliminar(c.claveDigitalId)" :disabled="c.estado === 'Vendida'">Eliminar</button>
+                    <button class="btn btn-sm btn-warning me-2" @@click="abrirModal(c)" :disabled="c.estado === 'Vendida' || ocupado">Editar</button>
+                    <button class="btn btn-sm btn-danger" @@click="eliminar(c.claveDigitalId)" :disabled="c.estado === 'Vendida' || ocupado">Eliminar</button>
                 </td>
             </tr>
             <tr v-if="claves.length === 0">
@@ -41,6 +42,13 @@
             </tr>
         </tbody>
     </table>
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <button class="btn btn-outline-primary" @@click="cargarTabla(paginaActual - 1)"
+                :disabled="ocupado || cargando || paginaActual <= 1">Anterior</button>
+        <span>Página {{ paginaActual }} de {{ totalPaginas }} · Total: {{ totalRegistros }} claves</span>
+        <button class="btn btn-outline-primary" @@click="cargarTabla(paginaActual + 1)"
+                :disabled="ocupado || cargando || paginaActual >= totalPaginas">Siguiente</button>
+    </div>
 
     <div class="modal" tabindex="-1" :class="{ 'd-block': modalVisible }" style="background: rgba(0,0,0,0.5);">
         <div class="modal-dialog">
@@ -50,13 +58,13 @@
                     <button type="button" class="btn-close" @@click="cerrarModal"></button>
                 </div>
                 <div class="modal-body">
-                    
+
                     <div class="mb-3" v-if="!editando">
                         <label class="form-label">Buscar Producto (min. 2 letras)</label>
                         <input type="text" class="form-control" v-model="busqueda" @@input="buscarAjax" placeholder="Ej: GTA" />
                         <ul class="list-group mt-2" v-if="resultados.length > 0">
                             <li class="list-group-item list-group-item-action" style="cursor:pointer;"
-                                v-for="p in resultados" :key="p.productoId" 
+                                v-for="p in resultados" :key="p.productoId"
                                 @@click="seleccionarProducto(p)">
                                 {{ p.nombre }} (ID: {{ p.productoId }})
                             </li>
@@ -70,13 +78,13 @@
 
                     <div class="mb-3">
                         <label class="form-label">Código Digital</label>
-                        <input type="text" class="form-control" v-model="form.codigo" placeholder="XXXX-XXXX-XXXX-XXXX" />
+                        <input type="text" class="form-control" v-model="form.codigo" maxlength="255" placeholder="XXXX-XXXX-XXXX-XXXX" />
                     </div>
 
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @@click="cerrarModal">Cancelar</button>
-                    <button type="button" class="btn btn-success" @@click="guardar" :disabled="!form.productoId || !form.codigo">Guardar</button>
+                    <button type="button" class="btn btn-success" @@click="guardar" :disabled="ocupado || !form.productoId || !form.codigo.trim()">Guardar</button>
                 </div>
             </div>
         </div>
@@ -86,7 +94,7 @@
 @section Scripts {
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script>
-        const { createApp, ref, onMounted } = Vue;
+        const { createApp, ref, computed, onMounted } = Vue;
 
         createApp({
             setup() {
@@ -95,88 +103,161 @@
                 const editando = ref(false);
                 const error = ref('');
                 const exito = ref('');
-                
                 const busqueda = ref('');
                 const resultados = ref([]);
+                const form = ref({ claveDigitalId: 0, productoId: null, codigo: '' });
+                const paginaActual = ref(1);
+                const totalPaginas = ref(1);
+                const totalRegistros = ref(0);
+                const guardando = ref(false);
+                const eliminando = ref(false);
+                const cargando = ref(false);
+                const ocupado = computed(() => guardando.value || eliminando.value);
+                const token = document.querySelector('#appVue input[name="__RequestVerificationToken"]').value;
+                let ultimaBusqueda = 0;
 
-                const form = ref({ claveDigitalId: 0, productoId: null, codigo: '', estado: 'Disponible' });
+                const pedirJson = async (url, opciones = {}) => {
+                    let res;
+                    try {
+                        res = await fetch(url, opciones);
+                    } catch {
+                        throw new Error('No se pudo conectar con el servidor. Intentá nuevamente.');
+                    }
+                    if (res.redirected)
+                        throw new Error('La sesión no permite esta operación. Volvé a iniciar sesión.');
+                    const esJson = (res.headers.get('content-type') || '').includes('application/json');
+                    let datos = null;
+                    if (esJson) {
+                        try { datos = await res.json(); }
+                        catch { throw new Error('El servidor devolvió una respuesta inválida.'); }
+                    }
+                    if (!res.ok) {
+                        const mensaje = res.status === 400
+                            ? 'La solicitud no es válida o la sesión venció. Actualizá la página.'
+                            : res.status === 401 || res.status === 403
+                                ? 'No tenés autorización para esta operación.'
+                                : 'No se pudo completar la operación. Intentá nuevamente.';
+                        throw new Error(datos?.mensaje || mensaje);
+                    }
+                    if (!esJson) throw new Error('El servidor devolvió una respuesta inesperada.');
+                    return datos;
+                };
 
-                const cargarTabla = async () => {
-                    const res = await fetch('/ClavesDigitales/Listar');
-                    claves.value = await res.json();
+                const cargarTabla = async (pagina = paginaActual.value) => {
+                    cargando.value = true;
+                    try {
+                        const datos = await pedirJson('/ClavesDigitales/Listar?pagina=' + pagina);
+                        claves.value = datos.items;
+                        paginaActual.value = datos.paginaActual;
+                        totalPaginas.value = datos.totalPaginas;
+                        totalRegistros.value = datos.totalRegistros;
+                        // Una eliminación concurrente puede vaciar la página tras el COUNT.
+                        if (claves.value.length === 0 && paginaActual.value > 1)
+                            await cargarTabla(paginaActual.value - 1);
+                    } catch (e) {
+                        error.value = e.message;
+                    } finally {
+                        cargando.value = false;
+                    }
                 };
 
                 const buscarAjax = async () => {
-                    if (busqueda.value.length < 2) {
+                    const solicitud = ++ultimaBusqueda;
+                    const texto = busqueda.value.trim();
+                    if (texto.length < 2) {
                         resultados.value = [];
                         return;
                     }
-                    const res = await fetch(`/ClavesDigitales/BuscarProductos?q=${encodeURIComponent(busqueda.value)}`);
-                    resultados.value = await res.json();
+                    try {
+                        const datos = await pedirJson('/ClavesDigitales/BuscarProductos?q=' + encodeURIComponent(texto));
+                        if (solicitud === ultimaBusqueda) resultados.value = datos;
+                    } catch (e) {
+                        if (solicitud === ultimaBusqueda) {
+                            resultados.value = [];
+                            error.value = e.message;
+                        }
+                    }
                 };
 
                 const seleccionarProducto = (p) => {
+                    ++ultimaBusqueda;
                     form.value.productoId = p.productoId;
                     busqueda.value = p.nombre;
-                    resultados.value = []; 
+                    resultados.value = [];
                 };
 
                 const abrirModal = (c) => {
+                    if (ocupado.value) return;
+                    ++ultimaBusqueda;
                     error.value = '';
-                    if (c) {
-                        editando.value = true;
-                        form.value = { ...c };
-                    } else {
-                        editando.value = false;
-                        busqueda.value = '';
-                        resultados.value = [];
-                        form.value = { claveDigitalId: 0, productoId: null, codigo: '', estado: 'Disponible' };
-                    }
+                    exito.value = '';
+                    editando.value = !!c;
+                    busqueda.value = '';
+                    resultados.value = [];
+                    form.value = c
+                        ? { claveDigitalId: c.claveDigitalId, productoId: c.productoId, codigo: c.codigo }
+                        : { claveDigitalId: 0, productoId: null, codigo: '' };
                     modalVisible.value = true;
                 };
 
-                const cerrarModal = () => { modalVisible.value = false; };
+                const cerrarModal = () => {
+                    if (ocupado.value) return;
+                    ++ultimaBusqueda;
+                    modalVisible.value = false;
+                };
 
                 const guardar = async () => {
+                    if (ocupado.value) return;
+                    guardando.value = true;
                     error.value = '';
                     exito.value = '';
-                    const url = editando.value ? '/ClavesDigitales/Editar' : '/ClavesDigitales/Crear';
-                    const method = editando.value ? 'PUT' : 'POST';
-
-                    const res = await fetch(url, {
-                        method: method,
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(form.value)
-                    });
-
-                    if (res.ok) {
-                        exito.value = "Operación exitosa.";
-                        cerrarModal();
-                        await cargarTabla();
-                    } else {
-                        error.value = await res.text();
+                    const eraEdicion = editando.value;
+                    const datos = eraEdicion
+                        ? { claveDigitalId: form.value.claveDigitalId, codigo: form.value.codigo }
+                        : { productoId: form.value.productoId, codigo: form.value.codigo };
+                    try {
+                        const respuesta = await pedirJson(eraEdicion ? '/ClavesDigitales/Editar' : '/ClavesDigitales/Crear', {
+                            method: eraEdicion ? 'PUT' : 'POST',
+                            headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
+                            body: JSON.stringify(datos)
+                        });
+                        exito.value = respuesta.mensaje;
+                        modalVisible.value = false;
+                        ++ultimaBusqueda;
+                        await cargarTabla(eraEdicion ? paginaActual.value : 1);
+                    } catch (e) {
+                        error.value = e.message;
+                    } finally {
+                        guardando.value = false;
                     }
-                    setTimeout(() => { error.value = ''; exito.value = ''; }, 4000);
                 };
 
                 const eliminar = async (id) => {
-                    if(!confirm('¿Eliminar clave de forma permanente?')) return;
-                    const res = await fetch(`/ClavesDigitales/Eliminar/${id}`, { method: 'DELETE' });
-                    if (res.ok) {
-                        exito.value = "Clave eliminada.";
+                    if (ocupado.value || !confirm('¿Eliminar clave de forma permanente?')) return;
+                    eliminando.value = true;
+                    error.value = '';
+                    exito.value = '';
+                    try {
+                        const respuesta = await pedirJson('/ClavesDigitales/Eliminar/' + id, {
+                            method: 'DELETE',
+                            headers: { 'RequestVerificationToken': token }
+                        });
+                        exito.value = respuesta.mensaje;
                         await cargarTabla();
-                    } else {
-                        error.value = await res.text();
+                    } catch (e) {
+                        error.value = e.message;
+                    } finally {
+                        eliminando.value = false;
                     }
-                    setTimeout(() => { error.value = ''; exito.value = ''; }, 4000);
                 };
 
-                onMounted(cargarTabla);
+                onMounted(() => cargarTabla());
 
                 return {
                     claves, modalVisible, editando, error, exito,
                     busqueda, resultados, form, buscarAjax, seleccionarProducto,
-                    abrirModal, cerrarModal, guardar, eliminar
+                    abrirModal, cerrarModal, guardar, eliminar, cargarTabla,
+                    paginaActual, totalPaginas, totalRegistros, ocupado, cargando
                 };
             }
         }).mount('#appVue');

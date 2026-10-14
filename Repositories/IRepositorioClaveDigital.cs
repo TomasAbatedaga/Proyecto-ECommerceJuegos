@@ -4,7 +4,8 @@ namespace ECommerceJuegos.Repositories
 {
     public interface IRepositorioClaveDigital
     {
-        Task<IEnumerable<ClaveDigital>> ObtenerTodasAsync();
+        Task<int> ContarAsync();
+        Task<IEnumerable<ClaveDigital>> ObtenerPaginaAsync(int pagina, int cantidad);
         Task<ClaveDigital?> ObtenerPorIdAsync(int id);
         Task<bool> ExisteCodigoAsync(string codigo);
         Task AgregarAsync(ClaveDigital clave);
