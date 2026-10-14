@@ -2,4 +2,37 @@
 @{ ViewData["Title"] = Model.Nombre; }
 <h1>Detalle de producto</h1>
 <partial name="_Detalle" model="Model" />
+<p class="fw-bold">@(Model.TieneStock ? "Disponible" : "Sin stock")</p>
+@if (Model.EstadoActivo && Model.TieneStock)
+{
+    if (User.Identity?.IsAuthenticated == true && User.IsInRole("Cliente") && !User.IsInRole("Administrador"))
+    {
+        <form id="formComprar" asp-controller="Compras" asp-action="Comprar" method="post" asp-antiforgery="false" class="mb-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="ProductoId" value="@Model.ProductoId" />
+            <button type="submit" class="btn btn-success">Comprar</button>
+        </form>
+    }
+    else if (User.Identity?.IsAuthenticated != true)
+    {
+        <p><a asp-controller="Usuarios" asp-action="Login">Iniciá sesión para comprar</a></p>
+    }
+}
 <a asp-action="Catalogo" class="btn btn-secondary">Volver al catálogo</a>
+@section Scripts {
+    <script>
+        const formularioCompra = document.getElementById('formComprar');
+        if (formularioCompra) {
+            let enviando = false;
+            formularioCompra.addEventListener('submit', (evento) => {
+                if (enviando) { evento.preventDefault(); return; }
+                enviando = true;
+                formularioCompra.querySelector('button[type="submit"]').disabled = true;
+            });
+            window.addEventListener('pageshow', () => {
+                enviando = false;
+                formularioCompra.querySelector('button[type="submit"]').disabled = false;
+            });
+        }
+    </script>
+}

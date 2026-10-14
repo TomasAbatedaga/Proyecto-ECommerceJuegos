@@ -1,0 +1,5 @@
+@model ECommerceJuegos.Models.ResultadoCompra
+@{ ViewData["Title"] = "Resultado de la compra"; }
+<h1>Resultado de la compra</h1>
+<div class="alert alert-warning">@Model.Mensaje</div>
+<a asp-controller="Productos" asp-action="Catalogo" class="btn btn-secondary">Volver al catálogo</a>

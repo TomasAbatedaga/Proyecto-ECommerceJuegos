@@ -8,6 +8,7 @@ public class ProductoListadoViewModel
     public decimal Precio { get; set; }
     public int CategoriaId { get; set; }
     public string CategoriaNombre { get; set; } = "";
+    public bool TieneStock { get; set; }
     public bool EstadoActivo { get; set; }
     public string? PortadaRuta { get; set; }
 }

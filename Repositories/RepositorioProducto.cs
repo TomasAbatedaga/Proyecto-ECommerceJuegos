@@ -6,7 +6,9 @@ namespace ECommerceJuegos.Repositories;
 public class RepositorioProducto : RepositorioBase, IRepositorioProducto
 {
     private const string Seleccion = @"SELECT p.ProductoId, p.Nombre, p.Descripcion, p.Precio,
-  p.CategoriaId, p.EstadoActivo, p.PortadaRuta, c.Nombre AS CategoriaNombre
+  p.CategoriaId, p.EstadoActivo, p.PortadaRuta, c.Nombre AS CategoriaNombre,
+  EXISTS (SELECT 1 FROM ClavesDigitales cd WHERE cd.ProductoId = p.ProductoId
+    AND cd.Estado = 'Disponible') AS TieneStock
   FROM Productos p INNER JOIN Categorias c ON c.CategoriaId = p.CategoriaId";
     public RepositorioProducto(IConfiguration configuration) : base(configuration) { }
     public int Alta(Producto producto)
@@ -84,7 +86,8 @@ public class RepositorioProducto : RepositorioBase, IRepositorioProducto
         CategoriaId = rd.GetInt32(4),
         EstadoActivo = rd.GetBoolean(5),
         PortadaRuta = rd.IsDBNull(6) ? null : rd.GetString(6),
-        CategoriaNombre = rd.GetString(7)
+        CategoriaNombre = rd.GetString(7),
+        TieneStock = rd.GetBoolean(8)
     };
     public async Task<IEnumerable<ProductoBuscadorDTO>> BuscarPorNombreAsync(string query)
 {

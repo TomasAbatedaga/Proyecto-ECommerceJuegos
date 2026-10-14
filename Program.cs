@@ -17,6 +17,7 @@ builder.Services.AddScoped<IRepositorioCategoria, RepositorioCategoria>();
 builder.Services.AddScoped<IRepositorioProducto, RepositorioProducto>();
 builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
 builder.Services.AddScoped<IRepositorioClaveDigital, RepositorioClaveDigital>();
+builder.Services.AddScoped<IRepositorioCompra, RepositorioCompra>();
 
 // Configurar Autenticación
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

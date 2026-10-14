@@ -1,0 +1,12 @@
+@model ECommerceJuegos.ViewModels.ConfirmacionCompraViewModel
+@{ ViewData["Title"] = "Compra confirmada"; }
+<h1>Compra realizada correctamente.</h1>
+<dl class="row">
+    <dt class="col-sm-3">Orden</dt><dd class="col-sm-9">#@Model.OrdenId</dd>
+    <dt class="col-sm-3">Producto</dt><dd class="col-sm-9">@Model.ProductoNombre</dd>
+    <dt class="col-sm-3">Fecha (UTC)</dt><dd class="col-sm-9">@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</dd>
+    <dt class="col-sm-3">Precio</dt><dd class="col-sm-9">@Model.PrecioPagado.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("es-AR"))</dd>
+    <dt class="col-sm-3">Clave digital</dt><dd class="col-sm-9"><code>@Model.CodigoClave</code></dd>
+</dl>
+<p>Guardá esta clave. También podrás consultarla desde tu historial de compras.</p>
+<a asp-controller="Productos" asp-action="Catalogo" class="btn btn-secondary">Volver al catálogo</a>

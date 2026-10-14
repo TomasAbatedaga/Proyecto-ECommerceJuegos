@@ -7,7 +7,7 @@
 <div class="col-sm-6 col-lg-4"><article class="card h-100">
 @if (!string.IsNullOrEmpty(producto.PortadaRuta)) { <img src="@producto.PortadaRuta" class="card-img-top" alt="Portada de @producto.Nombre" style="height:220px;object-fit:contain" /> }
 else { <div class="bg-light text-muted d-flex align-items-center justify-content-center" style="height:220px">Sin portada</div> }
-<div class="card-body"><h2 class="h5">@producto.Nombre</h2><p>@producto.CategoriaNombre</p><p class="fw-bold">@producto.Precio.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("es-AR"))</p><a asp-action="Detalle" asp-route-id="@producto.ProductoId" class="btn btn-primary">Ver detalle</a></div>
+<div class="card-body"><h2 class="h5">@producto.Nombre</h2><p>@producto.CategoriaNombre</p><p class="fw-bold">@producto.Precio.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("es-AR"))</p><p>@(producto.TieneStock ? "Disponible" : "Sin stock")</p><a asp-action="Detalle" asp-route-id="@producto.ProductoId" class="btn btn-primary">Ver detalle</a></div>
 </article></div>
 }
 </div>
