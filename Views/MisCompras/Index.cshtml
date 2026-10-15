@@ -23,6 +23,7 @@
             <table class="table table-hover align-middle border">
                 <thead class="table-dark">
                     <tr>
+                        <th>Orden</th>
                         <th>Fecha</th>
                         <th class="text-center">Portada</th>
                         <th>Producto</th>
@@ -35,6 +36,7 @@
                     @foreach (var compra in Model)
                     {
                         <tr>
+                            <td>@compra.OrdenId</td>
                             <td>@compra.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
                             <td class="text-center">
                                 @if (!string.IsNullOrEmpty(compra.PortadaRuta))
@@ -52,7 +54,7 @@
                                 <code class="fs-5 text-success bg-dark p-1 rounded">@compra.CodigoClave</code>
                             </td>
                             <td>
-                                <a href="@Url.Action("Detalle", "Productos", new { id = compra.OrdenId })" class="btn btn-sm btn-outline-primary">
+                                <a href="@Url.Action("Detalle", "Productos", new { id = compra.ProductoId })" class="btn btn-sm btn-outline-primary">
                                     Ver / Reseñar
                                 </a>
                             </td>

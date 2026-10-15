@@ -10,7 +10,8 @@ namespace ECommerceJuegos.Repositories
 
         public RepositorioOrden(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("Falta configurar DefaultConnection.");
         }
 
         public async Task<IEnumerable<MisComprasViewModel>> ObtenerComprasPorUsuarioPaginadoAsync(int usuarioId, int pagina, int cantidad)
@@ -24,13 +25,13 @@ namespace ECommerceJuegos.Repositories
             {
                 await conexion.OpenAsync();
                 string sql = @"
-                    SELECT o.OrdenId, o.Fecha, od.PrecioUnitario, p.Nombre, p.PortadaRuta, cd.Codigo 
+                    SELECT o.OrdenId, od.ProductoId, o.Fecha, od.PrecioUnitario, p.Nombre, p.PortadaRuta, cd.Codigo
                     FROM Ordenes o
                     INNER JOIN OrdenDetalles od ON o.OrdenId = od.OrdenId
                     INNER JOIN Productos p ON od.ProductoId = p.ProductoId
                     INNER JOIN ClavesDigitales cd ON od.ClaveDigitalId = cd.ClaveDigitalId
                     WHERE o.UsuarioId = @usuarioId AND o.Estado = 'Pagada'
-                    ORDER BY o.Fecha DESC
+                    ORDER BY o.Fecha DESC, od.OrdenDetalleId DESC
                     LIMIT @cantidad OFFSET @offset;";
 
                 using (var comando = new MySqlCommand(sql, conexion))
@@ -46,6 +47,7 @@ namespace ECommerceJuegos.Repositories
                             compras.Add(new MisComprasViewModel
                             {
                                 OrdenId = lector.GetInt32("OrdenId"),
+                                ProductoId = lector.GetInt32("ProductoId"),
                                 Fecha = lector.GetDateTime("Fecha"),
                                 PrecioPagado = lector.GetDecimal("PrecioUnitario"),
                                 ProductoNombre = lector.GetString("Nombre"),

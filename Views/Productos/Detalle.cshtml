@@ -70,8 +70,8 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Comentario (Opcional)</label>
-                        <textarea name="Comentario" class="form-control" rows="3" placeholder="¿Qué te pareció el producto?">@(miResena?.Comentario)</textarea>
+                        <label class="form-label fw-bold">Comentario</label>
+                        <textarea name="Comentario" class="form-control" rows="3" required maxlength="2000" placeholder="¿Qué te pareció el producto?">@(miResena?.Comentario)</textarea>
                     </div>
 
                     <button type="submit" class="btn btn-success">

@@ -10,7 +10,8 @@ namespace ECommerceJuegos.Repositories
 
         public RepositorioResena(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("Falta configurar DefaultConnection.");
         }
 
         public async Task<IEnumerable<ResenaViewModel>> ObtenerPorProductoAsync(int productoId)
@@ -38,7 +39,7 @@ namespace ECommerceJuegos.Repositories
                                 ResenaId = lector.GetInt32("ResenaId"),
                                 UsuarioId = lector.GetInt32("UsuarioId"),
                                 Puntuacion = lector.GetInt32("Puntuacion"),
-                                Comentario = lector.IsDBNull(lector.GetOrdinal("Comentario")) ? null : lector.GetString("Comentario"),
+                                Comentario = lector.GetString("Comentario"),
                                 Fecha = lector.GetDateTime("Fecha"),
                                 UsuarioEmail = lector.GetString("Email"),
                                 AvatarUrl = lector.IsDBNull(lector.GetOrdinal("AvatarUrl")) ? null : lector.GetString("AvatarUrl")
@@ -50,7 +51,7 @@ namespace ECommerceJuegos.Repositories
             return resenas;
         }
 
-        public async Task<Resena> ObtenerPorUsuarioYProductoAsync(int usuarioId, int productoId)
+        public async Task<Resena?> ObtenerPorUsuarioYProductoAsync(int usuarioId, int productoId)
         {
             using (var conexion = new MySqlConnection(_connectionString))
             {
@@ -70,7 +71,7 @@ namespace ECommerceJuegos.Repositories
                                 UsuarioId = lector.GetInt32("UsuarioId"),
                                 ProductoId = lector.GetInt32("ProductoId"),
                                 Puntuacion = lector.GetInt32("Puntuacion"),
-                                Comentario = lector.IsDBNull(lector.GetOrdinal("Comentario")) ? null : lector.GetString("Comentario"),
+                                Comentario = lector.GetString("Comentario"),
                                 Fecha = lector.GetDateTime("Fecha")
                             };
                         }
@@ -91,7 +92,7 @@ namespace ECommerceJuegos.Repositories
                     comando.Parameters.AddWithValue("@usuarioId", resena.UsuarioId);
                     comando.Parameters.AddWithValue("@productoId", resena.ProductoId);
                     comando.Parameters.AddWithValue("@puntuacion", resena.Puntuacion);
-                    comando.Parameters.AddWithValue("@comentario", (object)resena.Comentario ?? DBNull.Value);
+                    comando.Parameters.AddWithValue("@comentario", resena.Comentario);
                     comando.Parameters.AddWithValue("@fecha", DateTime.Now);
                     await comando.ExecuteNonQueryAsync();
                 }
@@ -103,12 +104,11 @@ namespace ECommerceJuegos.Repositories
             using (var conexion = new MySqlConnection(_connectionString))
             {
                 await conexion.OpenAsync();
-                string sql = "UPDATE Resenas SET Puntuacion = @puntuacion, Comentario = @comentario, Fecha = @fecha WHERE ResenaId = @resenaId AND UsuarioId = @usuarioId;";
+                string sql = "UPDATE Resenas SET Puntuacion = @puntuacion, Comentario = @comentario WHERE ResenaId = @resenaId AND UsuarioId = @usuarioId;";
                 using (var comando = new MySqlCommand(sql, conexion))
                 {
                     comando.Parameters.AddWithValue("@puntuacion", resena.Puntuacion);
-                    comando.Parameters.AddWithValue("@comentario", (object)resena.Comentario ?? DBNull.Value);
-                    comando.Parameters.AddWithValue("@fecha", DateTime.Now);
+                    comando.Parameters.AddWithValue("@comentario", resena.Comentario);
                     comando.Parameters.AddWithValue("@resenaId", resena.ResenaId);
                     comando.Parameters.AddWithValue("@usuarioId", resena.UsuarioId);
                     await comando.ExecuteNonQueryAsync();
