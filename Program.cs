@@ -22,6 +22,20 @@ builder.Services.AddScoped<IRepositorioResena, RepositorioResena>();
 builder.Services.AddScoped<IRepositorioOrden, RepositorioOrden>();
 
 // Configurar Autenticación
+// La clave se configura externamente (User Secrets en desarrollo).
+var jwtSecret = builder.Configuration["TokenAuthentication:SecretKey"];
+var jwtIssuer = builder.Configuration["TokenAuthentication:Issuer"];
+var jwtAudience = builder.Configuration["TokenAuthentication:Audience"];
+if (string.IsNullOrWhiteSpace(jwtSecret))
+    throw new InvalidOperationException("Falta configurar TokenAuthentication:SecretKey externamente.");
+if (string.IsNullOrWhiteSpace(jwtIssuer))
+    throw new InvalidOperationException("Falta configurar TokenAuthentication:Issuer.");
+if (string.IsNullOrWhiteSpace(jwtAudience))
+    throw new InvalidOperationException("Falta configurar TokenAuthentication:Audience.");
+var jwtKeyBytes = System.Text.Encoding.UTF8.GetBytes(jwtSecret);
+if (jwtKeyBytes.Length < 32)
+    throw new InvalidOperationException("TokenAuthentication:SecretKey debe tener al menos 32 bytes para HS256.");
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -37,9 +51,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["TokenAuthentication:Issuer"],
-            ValidAudience = builder.Configuration["TokenAuthentication:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(builder.Configuration["TokenAuthentication:SecretKey"]))
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(jwtKeyBytes),
+            ValidAlgorithms = new[] { SecurityAlgorithms.HmacSha256 },
+            ClockSkew = TimeSpan.Zero
         };
     });
 
@@ -66,6 +82,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",
