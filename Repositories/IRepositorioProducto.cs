@@ -5,7 +5,7 @@ namespace ECommerceJuegos.Repositories;
 public interface IRepositorioProducto
 {
     int Alta(Producto producto);
-    int Modificacion(Producto producto, string? portadaAnterior);
+    int Modificacion(Producto producto);
     int BajaLogica(int id);
     ProductoListadoViewModel? ObtenerPorId(int id);
     int ContarTodos();

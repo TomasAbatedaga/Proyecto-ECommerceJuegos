@@ -104,15 +104,14 @@ public class RepositorioUsuario : RepositorioBase, IRepositorioUsuario
 
 
 
-    public int ActualizarAvatar(int usuarioId, string avatarUrl, string? avatarAnterior)
+    public int ActualizarAvatar(int usuarioId, string avatarUrl)
     {
         using var connection = new MySqlConnection(ConnectionString);
         using var command = new MySqlCommand(@"
             UPDATE Usuarios SET AvatarUrl = @avatar
-            WHERE UsuarioId = @id AND AvatarUrl <=> @anterior", connection);
+            WHERE UsuarioId = @id", connection);
         command.Parameters.AddWithValue("@avatar", avatarUrl);
         command.Parameters.AddWithValue("@id", usuarioId);
-        command.Parameters.AddWithValue("@anterior", (object?)avatarAnterior ?? DBNull.Value);
         connection.Open();
         return command.ExecuteNonQuery();
     }

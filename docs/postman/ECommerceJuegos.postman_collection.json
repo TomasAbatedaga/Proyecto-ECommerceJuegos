@@ -1,0 +1,77 @@
+﻿{
+  "info": {
+    "name": "ECommerceJuegos - API B8A y B8B",
+    "description": "Configurar baseUrl con la URL y puerto reales del proyecto y clienteEmail/clientePassword en Variables. Ejecutar Login Cliente para guardar token. productoId debe corresponder a un producto activo. No guardar ni exportar credenciales o tokens reales. Mis Compras requiere un Cliente; una cookie MVC no reemplaza el JWT. Pruebas adicionales: token vencido/invalido (401), token Administrador (403), dos clientes con compras distintas, cliente sin compras (200 e items vacio), pagina 0 y pagina superior al maximo, precio historico y Cache-Control no-store. Deshabilitar el guardado de respuestas sensibles.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://localhost:XXXX", "type": "string" },
+    { "key": "clienteEmail", "value": "", "type": "string" },
+    { "key": "clientePassword", "value": "", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "productoId", "value": "1", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "AUTH",
+      "item": [
+        {
+          "name": "Login Cliente",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.collectionVariables.set('token', '');"] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Login correcto: 200', function () { pm.response.to.have.status(200); });", "if (pm.response.code === 200) {", "    pm.collectionVariables.set('token', pm.response.json().token);", "}"] } }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{clienteEmail}}\",\n  \"contrasenia\": \"{{clientePassword}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Login invalido",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Credenciales invalidas: 401', function () { pm.response.to.have.status(401); });"] } }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{clienteEmail}}\",\n  \"contrasenia\": \"{{clientePassword}}__incorrecta__\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "PRODUCTOS",
+      "item": [
+        {
+          "name": "Listar productos",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "header": [], "url": "{{baseUrl}}/api/productos?pagina=1" }
+        },
+        {
+          "name": "Detalle producto",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "header": [], "url": "{{baseUrl}}/api/productos/{{productoId}}" }
+        }
+      ]
+    },
+    {
+      "name": "MIS COMPRAS",
+      "item": [
+        {
+          "name": "Mis Compras con JWT",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Cliente autorizado: 200', function () { pm.response.to.have.status(200); });", "pm.test('Sin almacenamiento en cache', function () { pm.expect(pm.response.headers.get('Cache-Control')).to.include('no-store'); });"] } }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET", "header": [], "url": "{{baseUrl}}/api/mis-compras?pagina=1"
+          }
+        },
+        {
+          "name": "Mis Compras sin token",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Sin Bearer: 401, incluso con cookie MVC', function () { pm.response.to.have.status(401); });"] } }],
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "header": [], "url": "{{baseUrl}}/api/mis-compras?pagina=1" }
+        }
+      ]
+    }
+  ]
+}

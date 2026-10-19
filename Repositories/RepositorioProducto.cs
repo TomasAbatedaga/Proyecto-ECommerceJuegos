@@ -21,17 +21,15 @@ public class RepositorioProducto : RepositorioBase, IRepositorioProducto
         Parametros(cmd, producto); cn.Open();
         return producto.ProductoId = Convert.ToInt32(cmd.ExecuteScalar());
     }
-    public int Modificacion(Producto producto, string? portadaAnterior)
+    public int Modificacion(Producto producto)
     {
         using var cn = new MySqlConnection(ConnectionString);
-        // Comparación null-safe: no pisar una portada reemplazada concurrentemente.
         using var cmd = new MySqlCommand(@"UPDATE Productos SET Nombre = @nombre,
    Descripcion = @descripcion, Precio = @precio, CategoriaId = @categoria,
    EstadoActivo = @activo, PortadaRuta = @portada
-   WHERE ProductoId = @id AND PortadaRuta <=> @anterior", cn);
+   WHERE ProductoId = @id", cn);
         Parametros(cmd, producto);
         cmd.Parameters.AddWithValue("@id", producto.ProductoId);
-        cmd.Parameters.AddWithValue("@anterior", (object?)portadaAnterior ?? DBNull.Value);
         cn.Open(); return cmd.ExecuteNonQuery();
     }
     public int BajaLogica(int id)

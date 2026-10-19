@@ -264,7 +264,6 @@ public class UsuariosController : Controller
         if (!ModelState.IsValid) return View(perfil);
 
         string? nuevaRuta = null;
-        var actualizado = false;
         try
         {
             var extension = Path.GetExtension(archivo!.FileName).ToLowerInvariant();
@@ -281,38 +280,21 @@ public class UsuariosController : Controller
                 return View(perfil);
             }
 
-            await using var entrada = archivo.OpenReadStream();
-            var cabecera = new byte[12];
-            var leidos = await entrada.ReadAtLeastAsync(cabecera, cabecera.Length, throwOnEndOfStream: false);
-            if (!FirmaValida(extension, cabecera, leidos))
-            {
-                ModelState.AddModelError(nameof(model.Avatar), "El contenido del archivo no corresponde a una imagen permitida.");
-                return View(perfil);
-            }
-
-            var carpeta = CarpetaAvatares();
+            var carpeta = Path.Combine(_environment.WebRootPath, "Uploads", "Avatares");
             Directory.CreateDirectory(carpeta);
             var nombre = Guid.NewGuid().ToString("N") + extension;
             nuevaRuta = "/Uploads/Avatares/" + nombre;
-            var destino = Path.Combine(carpeta, nombre);
-            await using (var salida = new FileStream(destino, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            await using (var salida = new FileStream(Path.Combine(carpeta, nombre), FileMode.CreateNew))
             {
-                await salida.WriteAsync(cabecera.AsMemory(0, leidos));
-                await entrada.CopyToAsync(salida);
+                await archivo.CopyToAsync(salida);
             }
 
-            // La comparación evita pisar otro reemplazo simultáneo.
-            if (_repoUsuario.ActualizarAvatar(id, nuevaRuta, usuario.AvatarUrl) != 1)
-            {
-                EliminarAvatarSeguro(nuevaRuta);
-                ModelState.AddModelError("", "El perfil cambió durante la carga. Recargá la página e intentá nuevamente.");
-                return View(perfil);
-            }
-            actualizado = true;
+            if (_repoUsuario.ActualizarAvatar(id, nuevaRuta) != 1)
+                throw new InvalidOperationException("No se pudo actualizar el avatar.");
         }
         catch (Exception)
         {
-            if (!actualizado && nuevaRuta != null) EliminarAvatarSeguro(nuevaRuta);
+            EliminarAvatarSeguro(nuevaRuta);
             ModelState.AddModelError("", "No se pudo guardar el avatar. Intentá nuevamente.");
             return View(perfil);
         }
@@ -331,56 +313,22 @@ public class UsuariosController : Controller
         AvatarUrl = usuario.AvatarUrl
     };
 
-    private static bool FirmaValida(string extension, byte[] bytes, int cantidad)
-    {
-        if (extension is ".jpg" or ".jpeg")
-            return cantidad >= 3 && bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF;
-        if (extension == ".png")
-            return cantidad >= 8 && bytes.AsSpan(0, 8).SequenceEqual(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 });
-        return extension == ".webp" && cantidad >= 12 &&
-            System.Text.Encoding.ASCII.GetString(bytes, 0, 4) == "RIFF" &&
-            System.Text.Encoding.ASCII.GetString(bytes, 8, 4) == "WEBP";
-    }
-
-    private string CarpetaAvatares()
-    {
-        var raiz = Path.GetFullPath(_environment.WebRootPath);
-        var uploads = Path.Combine(raiz, "Uploads");
-        var carpeta = Path.Combine(uploads, "Avatares");
-        foreach (var directorio in new[] { raiz, uploads, carpeta })
-        {
-            if (Directory.Exists(directorio) &&
-                (System.IO.File.GetAttributes(directorio) & FileAttributes.ReparsePoint) != 0)
-                throw new IOException("Directorio de avatares no permitido.");
-        }
-        return carpeta;
-    }
-
     private void EliminarAvatarSeguro(string? ruta)
     {
         const string prefijo = "/Uploads/Avatares/";
         if (ruta == null || !ruta.StartsWith(prefijo, StringComparison.Ordinal)) return;
-        var nombre = ruta[prefijo.Length..];
-        // Solo archivos con nombres generados por este módulo, sin subdirectorios.
-        if (!System.Text.RegularExpressions.Regex.IsMatch(nombre,
-            @"\A[0-9a-f]{32}\.(jpg|jpeg|png|webp)\z")) return;
+        var nombre = ruta.Substring(prefijo.Length);
+        if (nombre.Length == 0 || nombre.Contains('/') || nombre.Contains('\\')) return;
         try
         {
-            var carpeta = CarpetaAvatares();
-            var archivo = Path.GetFullPath(Path.Combine(carpeta, nombre));
-            if (!string.Equals(Path.GetDirectoryName(archivo), carpeta, StringComparison.OrdinalIgnoreCase))
-                return;
-            if (System.IO.File.Exists(archivo) &&
-                (System.IO.File.GetAttributes(archivo) & FileAttributes.ReparsePoint) == 0)
-                System.IO.File.Delete(archivo);
+            var archivo = Path.Combine(_environment.WebRootPath, "Uploads", "Avatares", nombre);
+            if (System.IO.File.Exists(archivo)) System.IO.File.Delete(archivo);
         }
         catch (Exception)
         {
-            // La limpieza no debe invalidar un avatar ya guardado correctamente.
-            _logger.LogWarning("No se pudo limpiar un archivo de avatar del directorio administrado.");
+            _logger.LogWarning("No se pudo eliminar un archivo de avatar.");
         }
     }
-
     private void CrearUsuario(string email, string contrasenia, string rol)
     {
         var usuario = new Usuario { Email = email, Rol = rol, EstadoActivo = true };

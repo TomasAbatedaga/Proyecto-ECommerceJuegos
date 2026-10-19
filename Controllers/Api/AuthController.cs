@@ -3,11 +3,9 @@ using System.Security.Claims;
 using ECommerceJuegos.Models;
 using ECommerceJuegos.Repositories;
 using ECommerceJuegos.ViewModels.Api;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ECommerceJuegos.Controllers.Api;
@@ -19,15 +17,15 @@ public class AuthController : ControllerBase
 {
     private readonly IRepositorioUsuario _usuarios;
     private readonly IPasswordHasher<Usuario> _hasher;
-    private readonly TokenValidationParameters _jwt;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<AuthController> _logger;
 
     public AuthController(IRepositorioUsuario usuarios, IPasswordHasher<Usuario> hasher,
-        IOptionsMonitor<JwtBearerOptions> jwtOptions, ILogger<AuthController> logger)
+        IConfiguration configuration, ILogger<AuthController> logger)
     {
         _usuarios = usuarios;
         _hasher = hasher;
-        _jwt = jwtOptions.Get(JwtBearerDefaults.AuthenticationScheme).TokenValidationParameters;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -46,6 +44,12 @@ public class AuthController : ControllerBase
                 return Unauthorized(new { mensaje = "Credenciales inválidas." });
             }
 
+            var secretKey = _configuration["TokenAuthentication:SecretKey"]
+                ?? throw new InvalidOperationException("Falta configurar la clave JWT.");
+            var issuer = _configuration["TokenAuthentication:Issuer"];
+            var audience = _configuration["TokenAuthentication:Audience"];
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secretKey));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var ahora = DateTime.UtcNow;
             var expiraEn = ahora.AddHours(2);
             var claims = new[]
@@ -55,12 +59,12 @@ public class AuthController : ControllerBase
                 new Claim(ClaimTypes.Role, usuario.Rol)
             };
             var token = new JwtSecurityToken(
-                issuer: _jwt.ValidIssuer,
-                audience: _jwt.ValidAudience,
+                issuer: issuer,
+                audience: audience,
                 claims: claims,
                 notBefore: ahora,
                 expires: expiraEn,
-                signingCredentials: new SigningCredentials(_jwt.IssuerSigningKey, SecurityAlgorithms.HmacSha256));
+                signingCredentials: credentials);
 
             return Ok(new LoginApiResponse
             {

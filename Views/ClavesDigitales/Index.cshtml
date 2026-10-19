@@ -94,171 +94,135 @@
 @section Scripts {
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script>
-        const { createApp, ref, computed, onMounted } = Vue;
-
-        createApp({
-            setup() {
-                const claves = ref([]);
-                const modalVisible = ref(false);
-                const editando = ref(false);
-                const error = ref('');
-                const exito = ref('');
-                const busqueda = ref('');
-                const resultados = ref([]);
-                const form = ref({ claveDigitalId: 0, productoId: null, codigo: '' });
-                const paginaActual = ref(1);
-                const totalPaginas = ref(1);
-                const totalRegistros = ref(0);
-                const guardando = ref(false);
-                const eliminando = ref(false);
-                const cargando = ref(false);
-                const ocupado = computed(() => guardando.value || eliminando.value);
-                const token = document.querySelector('#appVue input[name="__RequestVerificationToken"]').value;
-                let ultimaBusqueda = 0;
-
-                const pedirJson = async (url, opciones = {}) => {
-                    let res;
-                    try {
-                        res = await fetch(url, opciones);
-                    } catch {
-                        throw new Error('No se pudo conectar con el servidor. Intentá nuevamente.');
-                    }
+        Vue.createApp({
+            data() {
+                return {
+                    claves: [],
+                    modalVisible: false,
+                    editando: false,
+                    error: '',
+                    exito: '',
+                    busqueda: '',
+                    resultados: [],
+                    form: { claveDigitalId: 0, productoId: null, codigo: '' },
+                    paginaActual: 1,
+                    totalPaginas: 1,
+                    totalRegistros: 0,
+                    guardando: false,
+                    eliminando: false,
+                    cargando: false,
+                    token: ''
+                };
+            },
+            computed: {
+                ocupado() {
+                    return this.guardando || this.eliminando;
+                }
+            },
+            methods: {
+                async pedirJson(url, opciones = {}) {
+                    const res = await fetch(url, opciones);
                     if (res.redirected)
                         throw new Error('La sesión no permite esta operación. Volvé a iniciar sesión.');
-                    const esJson = (res.headers.get('content-type') || '').includes('application/json');
-                    let datos = null;
-                    if (esJson) {
-                        try { datos = await res.json(); }
-                        catch { throw new Error('El servidor devolvió una respuesta inválida.'); }
-                    }
-                    if (!res.ok) {
-                        const mensaje = res.status === 400
-                            ? 'La solicitud no es válida o la sesión venció. Actualizá la página.'
-                            : res.status === 401 || res.status === 403
-                                ? 'No tenés autorización para esta operación.'
-                                : 'No se pudo completar la operación. Intentá nuevamente.';
-                        throw new Error(datos?.mensaje || mensaje);
-                    }
-                    if (!esJson) throw new Error('El servidor devolvió una respuesta inesperada.');
+                    if (!(res.headers.get('content-type') || '').includes('application/json'))
+                        throw new Error('El servidor devolvió una respuesta inesperada. Actualizá la página.');
+                    const datos = await res.json();
+                    if (!res.ok)
+                        throw new Error(datos.mensaje || 'No se pudo completar la operación.');
                     return datos;
-                };
-
-                const cargarTabla = async (pagina = paginaActual.value) => {
-                    cargando.value = true;
+                },
+                async cargarTabla(pagina = this.paginaActual) {
+                    this.cargando = true;
                     try {
-                        const datos = await pedirJson('/ClavesDigitales/Listar?pagina=' + pagina);
-                        claves.value = datos.items;
-                        paginaActual.value = datos.paginaActual;
-                        totalPaginas.value = datos.totalPaginas;
-                        totalRegistros.value = datos.totalRegistros;
-                        // Una eliminación concurrente puede vaciar la página tras el COUNT.
-                        if (claves.value.length === 0 && paginaActual.value > 1)
-                            await cargarTabla(paginaActual.value - 1);
+                        const datos = await this.pedirJson('/ClavesDigitales/Listar?pagina=' + pagina);
+                        this.claves = datos.items;
+                        this.paginaActual = datos.paginaActual;
+                        this.totalPaginas = datos.totalPaginas;
+                        this.totalRegistros = datos.totalRegistros;
                     } catch (e) {
-                        error.value = e.message;
+                        this.error = e.message;
                     } finally {
-                        cargando.value = false;
+                        this.cargando = false;
                     }
-                };
-
-                const buscarAjax = async () => {
-                    const solicitud = ++ultimaBusqueda;
-                    const texto = busqueda.value.trim();
+                },
+                async buscarAjax() {
+                    const texto = this.busqueda.trim();
                     if (texto.length < 2) {
-                        resultados.value = [];
+                        this.resultados = [];
                         return;
                     }
                     try {
-                        const datos = await pedirJson('/ClavesDigitales/BuscarProductos?q=' + encodeURIComponent(texto));
-                        if (solicitud === ultimaBusqueda) resultados.value = datos;
+                        this.resultados = await this.pedirJson('/ClavesDigitales/BuscarProductos?q=' + encodeURIComponent(texto));
                     } catch (e) {
-                        if (solicitud === ultimaBusqueda) {
-                            resultados.value = [];
-                            error.value = e.message;
-                        }
+                        this.resultados = [];
+                        this.error = e.message;
                     }
-                };
-
-                const seleccionarProducto = (p) => {
-                    ++ultimaBusqueda;
-                    form.value.productoId = p.productoId;
-                    busqueda.value = p.nombre;
-                    resultados.value = [];
-                };
-
-                const abrirModal = (c) => {
-                    if (ocupado.value) return;
-                    ++ultimaBusqueda;
-                    error.value = '';
-                    exito.value = '';
-                    editando.value = !!c;
-                    busqueda.value = '';
-                    resultados.value = [];
-                    form.value = c
+                },
+                seleccionarProducto(p) {
+                    this.form.productoId = p.productoId;
+                    this.busqueda = p.nombre;
+                    this.resultados = [];
+                },
+                abrirModal(c) {
+                    if (this.ocupado) return;
+                    this.error = '';
+                    this.exito = '';
+                    this.editando = !!c;
+                    this.busqueda = '';
+                    this.resultados = [];
+                    this.form = c
                         ? { claveDigitalId: c.claveDigitalId, productoId: c.productoId, codigo: c.codigo }
                         : { claveDigitalId: 0, productoId: null, codigo: '' };
-                    modalVisible.value = true;
-                };
-
-                const cerrarModal = () => {
-                    if (ocupado.value) return;
-                    ++ultimaBusqueda;
-                    modalVisible.value = false;
-                };
-
-                const guardar = async () => {
-                    if (ocupado.value) return;
-                    guardando.value = true;
-                    error.value = '';
-                    exito.value = '';
-                    const eraEdicion = editando.value;
-                    const datos = eraEdicion
-                        ? { claveDigitalId: form.value.claveDigitalId, codigo: form.value.codigo }
-                        : { productoId: form.value.productoId, codigo: form.value.codigo };
+                    this.modalVisible = true;
+                },
+                cerrarModal() {
+                    if (!this.ocupado) this.modalVisible = false;
+                },
+                async guardar() {
+                    if (this.ocupado) return;
+                    this.guardando = true;
+                    this.error = '';
+                    this.exito = '';
+                    const datos = this.editando
+                        ? { claveDigitalId: this.form.claveDigitalId, codigo: this.form.codigo }
+                        : { productoId: this.form.productoId, codigo: this.form.codigo };
                     try {
-                        const respuesta = await pedirJson(eraEdicion ? '/ClavesDigitales/Editar' : '/ClavesDigitales/Crear', {
-                            method: eraEdicion ? 'PUT' : 'POST',
-                            headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
+                        const respuesta = await this.pedirJson(this.editando ? '/ClavesDigitales/Editar' : '/ClavesDigitales/Crear', {
+                            method: this.editando ? 'PUT' : 'POST',
+                            headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': this.token },
                             body: JSON.stringify(datos)
                         });
-                        exito.value = respuesta.mensaje;
-                        modalVisible.value = false;
-                        ++ultimaBusqueda;
-                        await cargarTabla(eraEdicion ? paginaActual.value : 1);
+                        this.exito = respuesta.mensaje;
+                        this.modalVisible = false;
+                        await this.cargarTabla(this.editando ? this.paginaActual : 1);
                     } catch (e) {
-                        error.value = e.message;
+                        this.error = e.message;
                     } finally {
-                        guardando.value = false;
+                        this.guardando = false;
                     }
-                };
-
-                const eliminar = async (id) => {
-                    if (ocupado.value || !confirm('¿Eliminar clave de forma permanente?')) return;
-                    eliminando.value = true;
-                    error.value = '';
-                    exito.value = '';
+                },
+                async eliminar(id) {
+                    if (this.ocupado || !confirm('¿Eliminar clave de forma permanente?')) return;
+                    this.eliminando = true;
+                    this.error = '';
+                    this.exito = '';
                     try {
-                        const respuesta = await pedirJson('/ClavesDigitales/Eliminar/' + id, {
+                        const respuesta = await this.pedirJson('/ClavesDigitales/Eliminar/' + id, {
                             method: 'DELETE',
-                            headers: { 'RequestVerificationToken': token }
+                            headers: { 'RequestVerificationToken': this.token }
                         });
-                        exito.value = respuesta.mensaje;
-                        await cargarTabla();
+                        this.exito = respuesta.mensaje;
+                        await this.cargarTabla();
                     } catch (e) {
-                        error.value = e.message;
+                        this.error = e.message;
                     } finally {
-                        eliminando.value = false;
+                        this.eliminando = false;
                     }
-                };
-
-                onMounted(() => cargarTabla());
-
-                return {
-                    claves, modalVisible, editando, error, exito,
-                    busqueda, resultados, form, buscarAjax, seleccionarProducto,
-                    abrirModal, cerrarModal, guardar, eliminar, cargarTabla,
-                    paginaActual, totalPaginas, totalRegistros, ocupado, cargando
-                };
+                }
+            },
+            mounted() {
+                this.token = document.querySelector('#appVue input[name="__RequestVerificationToken"]').value;
+                this.cargarTabla();
             }
         }).mount('#appVue');
     </script>

@@ -114,7 +114,6 @@ public class ProductosController : Controller
         var vista = editar ? "Edit" : "Create";
         string? nuevaRuta = null;
         string? anterior = null;
-        var actualizado = false;
         model.Nombre = (model.Nombre ?? "").Trim();
         model.Descripcion = (model.Descripcion ?? "").Trim();
         if (model.Nombre.Length == 0) ModelState.AddModelError("Nombre", "Ingresá un nombre.");
@@ -149,15 +148,14 @@ public class ProductosController : Controller
             };
             if (editar)
             {
-                if (_productos.Modificacion(producto, anterior) != 1)
+                if (_productos.Modificacion(producto) != 1)
                 {
                     EliminarPortadaSeguro(nuevaRuta);
-                    ModelState.AddModelError("", "El producto cambió durante la edición. Recargá la página e intentá nuevamente.");
+                    ModelState.AddModelError("", "No se pudo actualizar el producto.");
                     return Formulario(vista, model);
                 }
             }
             else _productos.Alta(producto);
-            actualizado = true;
         }
         catch (MySqlException ex) when (ex.Number == 1452)
         {
@@ -167,7 +165,7 @@ public class ProductosController : Controller
         }
         catch (Exception ex)
         {
-            if (!actualizado) EliminarPortadaSeguro(nuevaRuta);
+            EliminarPortadaSeguro(nuevaRuta);
             _logger.LogError(ex, "Error guardando producto o portada.");
             ModelState.AddModelError("", "No se pudo guardar el producto o su portada. Intentá nuevamente.");
             return Formulario(vista, model);
@@ -211,67 +209,33 @@ public class ProductosController : Controller
         { ".jpg" or ".jpeg" => "image/jpeg", ".png" => "image/png", ".webp" => "image/webp", _ => null };
         if (tipo == null || !string.Equals(tipo, archivo.ContentType, StringComparison.OrdinalIgnoreCase))
         { ModelState.AddModelError("Portada", "Usá JPG, PNG o WebP con un tipo de contenido válido."); return null; }
-        await using var entrada = archivo.OpenReadStream();
-        var cabecera = new byte[12];
-        var leidos = await entrada.ReadAtLeastAsync(cabecera, cabecera.Length, throwOnEndOfStream: false);
-        if (!FirmaValida(extension, cabecera, leidos))
-        { ModelState.AddModelError("Portada", "El contenido del archivo no corresponde a una imagen permitida."); return null; }
-        var carpeta = CarpetaPortadas();
+        var carpeta = Path.Combine(_environment.WebRootPath, "Uploads", "Productos");
         Directory.CreateDirectory(carpeta);
         var nombre = Guid.NewGuid().ToString("N") + extension;
         var ruta = "/Uploads/Productos/" + nombre;
         try
         {
-            await using var salida = new FileStream(Path.Combine(carpeta, nombre), FileMode.CreateNew, FileAccess.Write, FileShare.None);
-            await salida.WriteAsync(cabecera.AsMemory(0, leidos));
-            // Limitar también los bytes efectivamente leídos, sin confiar solo en Length.
-            long cantidad = leidos;
-            var buffer = new byte[81920];
-            int lectura;
-            while ((lectura = await entrada.ReadAsync(buffer)) > 0)
-            {
-                cantidad += lectura;
-                if (cantidad > MaxPortada) throw new IOException("Portada demasiado grande.");
-                await salida.WriteAsync(buffer.AsMemory(0, lectura));
-            }
+            await using var salida = new FileStream(Path.Combine(carpeta, nombre), FileMode.CreateNew);
+            await archivo.CopyToAsync(salida);
         }
         catch { EliminarPortadaSeguro(ruta); throw; }
         return ruta;
     }
-    private static bool FirmaValida(string extension, byte[] bytes, int cantidad)
-    {
-        if (extension is ".jpg" or ".jpeg")
-            return cantidad >= 3 && bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF;
-        if (extension == ".png")
-            return cantidad >= 8 && bytes.AsSpan(0, 8).SequenceEqual(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 });
-        return extension == ".webp" && cantidad >= 12 &&
-         System.Text.Encoding.ASCII.GetString(bytes, 0, 4) == "RIFF" &&
-         System.Text.Encoding.ASCII.GetString(bytes, 8, 4) == "WEBP";
-    }
-    private string CarpetaPortadas()
-    {
-        var raiz = Path.GetFullPath(_environment.WebRootPath);
-        var uploads = Path.Combine(raiz, "Uploads");
-        var carpeta = Path.Combine(uploads, "Productos");
-        foreach (var directorio in new[] { raiz, uploads, carpeta })
-            if (Directory.Exists(directorio) && (System.IO.File.GetAttributes(directorio) & FileAttributes.ReparsePoint) != 0)
-                throw new IOException("Directorio de portadas no permitido.");
-        return carpeta;
-    }
+
     private void EliminarPortadaSeguro(string? ruta)
     {
         const string prefijo = "/Uploads/Productos/";
         if (ruta == null || !ruta.StartsWith(prefijo, StringComparison.Ordinal)) return;
-        var nombre = ruta[prefijo.Length..];
-        if (!System.Text.RegularExpressions.Regex.IsMatch(nombre, @"\A[0-9a-f]{32}\.(jpg|jpeg|png|webp)\z")) return;
+        var nombre = ruta.Substring(prefijo.Length);
+        if (nombre.Length == 0 || nombre.Contains('/') || nombre.Contains('\\')) return;
         try
         {
-            var carpeta = CarpetaPortadas();
-            var archivo = Path.GetFullPath(Path.Combine(carpeta, nombre));
-            if (!string.Equals(Path.GetDirectoryName(archivo), carpeta, StringComparison.OrdinalIgnoreCase)) return;
-            if (System.IO.File.Exists(archivo) && (System.IO.File.GetAttributes(archivo) & FileAttributes.ReparsePoint) == 0)
-                System.IO.File.Delete(archivo);
+            var archivo = Path.Combine(_environment.WebRootPath, "Uploads", "Productos", nombre);
+            if (System.IO.File.Exists(archivo)) System.IO.File.Delete(archivo);
         }
-        catch (Exception) { _logger.LogWarning("No se pudo limpiar un archivo de portada del directorio administrado."); }
+        catch (Exception)
+        {
+            _logger.LogWarning("No se pudo eliminar un archivo de portada.");
+        }
     }
 }

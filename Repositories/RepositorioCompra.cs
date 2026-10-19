@@ -1,4 +1,3 @@
-using System.Data;
 using ECommerceJuegos.Models;
 using ECommerceJuegos.ViewModels;
 using MySqlConnector;
@@ -15,21 +14,14 @@ public class RepositorioCompra : RepositorioBase, IRepositorioCompra
     {
         using var conexion = new MySqlConnection(ConnectionString);
         MySqlTransaction? transaccion = null;
-        var iniciandoCommit = false;
         try
         {
             await conexion.OpenAsync();
-            transaccion = await conexion.BeginTransactionAsync(IsolationLevel.RepeatableRead);
-
-            async Task<ResultadoCompra> Rechazar(EstadoResultadoCompra estado, string mensaje)
-            {
-                await transaccion.RollbackAsync();
-                return new ResultadoCompra(estado, mensaje);
-            }
+            transaccion = await conexion.BeginTransactionAsync();
 
             bool usuarioValido;
             using (var cmd = new MySqlCommand(
-                "SELECT UsuarioId, EstadoActivo, Rol FROM Usuarios WHERE UsuarioId = @usuarioId FOR SHARE;",
+                "SELECT UsuarioId, EstadoActivo, Rol FROM Usuarios WHERE UsuarioId = @usuarioId;",
                 conexion, transaccion))
             {
                 cmd.Parameters.AddWithValue("@usuarioId", usuarioId);
@@ -38,13 +30,16 @@ public class RepositorioCompra : RepositorioBase, IRepositorioCompra
                     rd.GetString("Rol") == "Cliente";
             }
             if (!usuarioValido)
-                return await Rechazar(EstadoResultadoCompra.UsuarioInvalido, "El usuario no está habilitado para comprar.");
+            {
+                await transaccion.RollbackAsync();
+                return new ResultadoCompra(EstadoResultadoCompra.UsuarioInvalido, "El usuario no está habilitado para comprar.");
+            }
 
             decimal precio = 0;
             bool existeProducto;
             bool activo = false;
             using (var cmd = new MySqlCommand(
-                "SELECT ProductoId, Nombre, Precio, EstadoActivo FROM Productos WHERE ProductoId = @productoId FOR UPDATE;",
+                "SELECT ProductoId, Nombre, Precio, EstadoActivo FROM Productos WHERE ProductoId = @productoId;",
                 conexion, transaccion))
             {
                 cmd.Parameters.AddWithValue("@productoId", productoId);
@@ -57,9 +52,15 @@ public class RepositorioCompra : RepositorioBase, IRepositorioCompra
                 }
             }
             if (!existeProducto)
-                return await Rechazar(EstadoResultadoCompra.ProductoNoEncontrado, "Producto no encontrado.");
+            {
+                await transaccion.RollbackAsync();
+                return new ResultadoCompra(EstadoResultadoCompra.ProductoNoEncontrado, "Producto no encontrado.");
+            }
             if (!activo)
-                return await Rechazar(EstadoResultadoCompra.ProductoInactivo, "El producto ya no está disponible.");
+            {
+                await transaccion.RollbackAsync();
+                return new ResultadoCompra(EstadoResultadoCompra.ProductoInactivo, "El producto ya no está disponible.");
+            }
 
             int claveId = 0;
             using (var cmd = new MySqlCommand(
@@ -72,7 +73,10 @@ public class RepositorioCompra : RepositorioBase, IRepositorioCompra
                 if (await rd.ReadAsync()) claveId = rd.GetInt32("ClaveDigitalId");
             }
             if (claveId <= 0)
-                return await Rechazar(EstadoResultadoCompra.SinStock, "El producto no tiene stock disponible.");
+            {
+                await transaccion.RollbackAsync();
+                return new ResultadoCompra(EstadoResultadoCompra.SinStock, "El producto no tiene stock disponible.");
+            }
 
             using (var cmd = new MySqlCommand(
                 @"INSERT INTO Ordenes (UsuarioId, Fecha, Estado, MontoTotal)
@@ -108,28 +112,23 @@ public class RepositorioCompra : RepositorioBase, IRepositorioCompra
                 cmd.Parameters.AddWithValue("@claveId", claveId);
                 cmd.Parameters.AddWithValue("@productoId", productoId);
                 if (await cmd.ExecuteNonQueryAsync() != 1)
-                    return await Rechazar(EstadoResultadoCompra.ErrorTemporal,
-                        "La clave ya no está disponible. Intentá nuevamente.");
+                {
+                    await transaccion.RollbackAsync();
+                    return new ResultadoCompra(EstadoResultadoCompra.ErrorTemporal, "La clave ya no está disponible. Intentá nuevamente.");
+                }
             }
 
-            iniciandoCommit = true;
             await transaccion.CommitAsync();
             return new ResultadoCompra(EstadoResultadoCompra.Exito, "Compra realizada correctamente.", ordenId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al procesar la compra. Commit iniciado: {CommitIniciado}", iniciandoCommit);
+            _logger.LogError(ex, "Error al procesar la compra.");
             if (transaccion != null)
             {
                 try { await transaccion.RollbackAsync(); }
                 catch (Exception rollbackEx) { _logger.LogError(rollbackEx, "No se pudo confirmar el rollback de compra."); }
             }
-            if (iniciandoCommit)
-                return new ResultadoCompra(EstadoResultadoCompra.Error,
-                    "No se pudo confirmar el resultado de la compra. No la repitas hasta verificar su estado.");
-            if (ex is MySqlException mysql && (mysql.Number == 1205 || mysql.Number == 1213))
-                return new ResultadoCompra(EstadoResultadoCompra.ErrorTemporal,
-                    "No se pudo completar la compra en este momento. Intentá nuevamente.");
             return new ResultadoCompra(EstadoResultadoCompra.Error,
                 "No se pudo completar la compra. Intentá nuevamente más tarde.");
         }
