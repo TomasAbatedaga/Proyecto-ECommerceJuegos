@@ -1,6 +1,14 @@
 # ECommerce Juegos
 
-Esta es una pagina para compra de juegos y softwares
+## 📝 Descripción del Proyecto
+Plataforma E-Commerce desarrollada bajo el patrón MVC orientada a la venta de claves digitales (CD Keys) de videojuegos y software. 
+El sistema permite a los clientes registrarse, explorar un catálogo paginado, realizar compras garantizando la asignación de stock real de claves únicas y calificar los productos adquiridos. La administración cuenta con un panel seguro donde la gestión de stock se realiza de forma reactiva y asíncrona.
+
+## 🛠️ Tecnologías y Arquitectura
+* **Backend:** ASP.NET Core MVC (.NET 10), C#
+* **Base de Datos:** MySQL (MySqlConnector), ADO.NET
+* **Frontend:** Razor Views, Bootstrap, Vue 3 (Módulo reactivo)
+* **Autenticación:** Cookies (Sitio Web), JWT (API REST)
 
 ## 👥 Integrantes del Grupo
 * Tomas Abatedaga - abatedagatomas@gmail.com - @TomasAbatedaga - Discord: ztomy1
@@ -43,3 +51,19 @@ El script SQL incluye dos usuarios preconfigurados para probar los distintos rol
 * **Empleado** (Acceso restringido, gestión de entidades y perfil propio)
   * **Email:** `cliente@example.test`
   * **Contraseña:** `ClientePrueba123!`
+
+  ---
+
+### Evidence Matrix (Matriz de Evidencias)
+
+## 📋 Tabla de Evidencias
+
+| Requerimiento Mínimo | Estado | Enlace al Código / Controladores | Evidencia (Captura / GIF / Video) |
+| :--- | :--- | :--- | :--- |
+| **1. 4 Tablas y Relación 1:N** | ✅ Cumplido | [script.sql](./database/script.sql) | Diagrama DER adjunto en `/assets/diagrama.png` |
+| **2. Login, Roles y Avatar** | ✅ Cumplido | [UsuariosController.cs](./Controllers/UsuariosController.cs) | Captura de pantalla de perfil con avatar cargado |
+| **3. Manejo de Archivos (Extra)** | ✅ Cumplido | [ProductosController.cs](./Controllers/ProductosController.cs) | Video corto / GIF mostrando subida de imagen de portada |
+| **4. ABM en Vue.js + AJAX** | ✅ Cumplido | [Index.cshtml](./Views/ClavesDigitales/Index.cshtml) | Video corto / GIF del ABM dinámico de Claves Digitales |
+| **5. Paginado por Servidor** | ✅ Cumplido | [RepositorioProducto.cs](./Repositories/RepositorioProducto.cs) | Captura del inspector de red enviando `pagina=2` en el catálogo |
+| **6. Selección Asíncrona (AJAX)** | ✅ Cumplido | [ClavesDigitalesController.cs](./Controllers/ClavesDigitalesController.cs) | GIF buscando productos por nombre al crear una nueva clave |
+| **7. Web API + JWT** | ✅ Cumplido | [AuthController.cs](./Controllers/Api/AuthController.cs) | Captura de Postman con Bearer Token consumiendo Mis Compras |
