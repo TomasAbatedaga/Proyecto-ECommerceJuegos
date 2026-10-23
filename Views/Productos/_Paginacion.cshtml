@@ -1,6 +1,21 @@
 @model ECommerceJuegos.ViewModels.ProductosIndexViewModel
-<p>Página @Model.PaginaActual de @Model.TotalPaginas · @Model.TotalRegistros productos</p>
-<nav aria-label="Páginas de productos">
- @if (Model.TieneAnterior) { <a asp-action="@ViewContext.RouteData.Values["action"]" asp-route-pagina="@(Model.PaginaActual - 1)" class="btn btn-outline-primary">Anterior</a> }
- @if (Model.TieneSiguiente) { <a asp-action="@ViewContext.RouteData.Values["action"]" asp-route-pagina="@(Model.PaginaActual + 1)" class="btn btn-outline-primary">Siguiente</a> }
-</nav>
+
+<div class="d-flex justify-content-between align-items-center mt-4 border-top border-secondary pt-3">
+    <span class="text-muted">Página @Model.PaginaActual de @Model.TotalPaginas &middot; @Model.TotalRegistros productos</span>
+    
+    <nav aria-label="Páginas de productos" data-bs-theme="dark">
+        <ul class="pagination mb-0">
+            <li class="page-item @(Model.TieneAnterior ? "" : "disabled")">
+                <a class="page-link" asp-action="@ViewContext.RouteData.Values["action"]" asp-route-pagina="@(Model.PaginaActual - 1)">Anterior</a>
+            </li>
+            
+            <li class="page-item disabled">
+                <span class="page-link">@Model.PaginaActual / @Model.TotalPaginas</span>
+            </li>
+            
+            <li class="page-item @(Model.TieneSiguiente ? "" : "disabled")">
+                <a class="page-link" asp-action="@ViewContext.RouteData.Values["action"]" asp-route-pagina="@(Model.PaginaActual + 1)">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+</div>

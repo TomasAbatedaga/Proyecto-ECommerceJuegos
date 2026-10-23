@@ -1,20 +1,55 @@
 @model ECommerceJuegos.ViewModels.ProductosIndexViewModel
 @{ ViewData["Title"] = "Productos"; }
+
 <h1>Productos</h1>
+
 @if (TempData["Error"] is string error) { <div class="alert alert-danger">@error</div> }
-<a asp-action="Create" class="btn btn-primary mb-3">Crear producto</a>
+
+<a asp-action="Create" class="btn btn-gamer mb-3"><i class="bi bi-plus-circle"></i> Crear producto</a>
+
 @if (Model.Productos.Count == 0) { <p>No hay productos.</p> }
 else {
-<div class="table-responsive"><table class="table align-middle"><thead><tr><th>Id</th><th>Portada</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
-@foreach (var producto in Model.Productos) {
-<tr><td>@producto.ProductoId</td><td>
-@if (!string.IsNullOrEmpty(producto.PortadaRuta)) { <img src="@producto.PortadaRuta" alt="Portada de @producto.Nombre" style="width:60px;height:80px;object-fit:contain" /> } else { <span class="text-muted">Sin portada</span> }
-</td><td>@producto.Nombre</td><td>@producto.CategoriaNombre</td><td>@producto.Precio.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("es-AR"))</td><td>@(producto.EstadoActivo ? "Activo" : "Inactivo")</td><td>
-<a asp-action="Details" asp-route-id="@producto.ProductoId">Detalles</a> |
-<a asp-action="Edit" asp-route-id="@producto.ProductoId">Editar</a>
-@if (producto.EstadoActivo) { <span> | </span><a asp-action="Delete" asp-route-id="@producto.ProductoId">Desactivar</a> }
-</td></tr>
-}
-</tbody></table></div>
+<div class="table-responsive">
+    <table class="table table-dark table-striped table-hover align-middle border-secondary mt-3">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Portada</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var producto in Model.Productos) {
+            <tr>
+                <td>@producto.ProductoId</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(producto.PortadaRuta)) { 
+                        <img src="@producto.PortadaRuta" alt="Portada de @producto.Nombre" style="width:60px;height:80px;object-fit:contain" /> 
+                    } else { 
+                        <span class="text-muted">Sin portada</span> 
+                    }
+                </td>
+                <td>@producto.Nombre</td>
+                <td>@producto.CategoriaNombre</td>
+                <td>@producto.Precio.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("es-AR"))</td>
+                <td>@(producto.EstadoActivo ? "Activo" : "Inactivo")</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a asp-action="Details" asp-route-id="@producto.ProductoId" class="btn btn-sm btn-outline-info">Detalles</a>
+                        <a asp-action="Edit" asp-route-id="@producto.ProductoId" class="btn btn-sm btn-outline-warning">Editar</a>
+                        @if (producto.EstadoActivo) { 
+                            <a asp-action="Delete" asp-route-id="@producto.ProductoId" class="btn btn-sm btn-outline-danger">Desactivar</a> 
+                        }
+                    </div>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
 }
 <partial name="_Paginacion" model="Model" />

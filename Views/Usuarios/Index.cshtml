@@ -1,58 +1,76 @@
 @model ECommerceJuegos.ViewModels.UsuariosIndexViewModel
 @{ ViewData["Title"] = "Usuarios"; }
 
-<h1>Gestión de usuarios</h1>
+<h1 class="mb-4">Gestión de usuarios</h1>
+
 @if (TempData["Error"] is string error)
 {
     <div class="alert alert-danger">@error</div>
 }
-<p><a asp-action="Create" class="btn btn-primary">Crear nuevo</a></p>
-<table class="table table-striped">
-    <thead><tr><th>Id</th><th>Email</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
-    <tbody>
-    @foreach (var item in Model.Usuarios)
-    {
-        <tr>
-            <td>@item.UsuarioId</td>
-            <td>@item.Email</td>
-            <td>@item.Rol</td>
-            <td>@(item.EstadoActivo ? "Activo" : "Inactivo")</td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.UsuarioId" class="btn btn-warning btn-sm">Editar</a>
-                <a asp-action="Details" asp-route-id="@item.UsuarioId" class="btn btn-info btn-sm">Detalles</a>
-                @if (item.EstadoActivo)
-                {
-                    <a asp-action="Delete" asp-route-id="@item.UsuarioId" class="btn btn-danger btn-sm">Desactivar</a>
-                }
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
 
-<p>Total de usuarios: @Model.TotalRegistros</p>
+<a asp-action="Create" class="btn btn-gamer mb-3"><i class="bi bi-person-plus-fill"></i> Crear nuevo</a>
+
 @if (Model.TotalRegistros == 0)
 {
-    <p>No hay usuarios para mostrar.</p>
+    <p class="text-muted mt-3">No hay usuarios para mostrar.</p>
 }
-<nav aria-label="Paginación de usuarios">
-    <ul class="pagination">
-        @if (Model.TieneAnterior)
-        {
-            <li class="page-item"><a class="page-link" asp-action="Index" asp-route-pagina="@(Model.PaginaActual - 1)">Anterior</a></li>
-        }
-        else
-        {
-            <li class="page-item disabled"><span class="page-link" aria-disabled="true">Anterior</span></li>
-        }
-        <li class="page-item"><span class="page-link">@(Model.PaginaActual) / @Model.TotalPaginas</span></li>
-        @if (Model.TieneSiguiente)
-        {
-            <li class="page-item"><a class="page-link" asp-action="Index" asp-route-pagina="@(Model.PaginaActual + 1)">Siguiente</a></li>
-        }
-        else
-        {
-            <li class="page-item disabled"><span class="page-link" aria-disabled="true">Siguiente</span></li>
-        }
-    </ul>
-</nav>
+else
+{
+    <div class="table-responsive">
+        <table class="table table-dark table-striped table-hover align-middle border-secondary mt-3">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Usuarios)
+            {
+                <tr>
+                    <td>@item.UsuarioId</td>
+                    <td>@item.Email</td>
+                    <td>@item.Rol</td>
+                    <td>
+                        @if(item.EstadoActivo) { <span class="badge bg-success">Activo</span> }
+                        else { <span class="badge bg-danger">Inactivo</span> }
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a asp-action="Details" asp-route-id="@item.UsuarioId" class="btn btn-outline-info btn-sm">Detalles</a>
+                            <a asp-action="Edit" asp-route-id="@item.UsuarioId" class="btn btn-outline-warning btn-sm">Editar</a>
+                            @if (item.EstadoActivo)
+                            {
+                                <a asp-action="Delete" asp-route-id="@item.UsuarioId" class="btn btn-outline-danger btn-sm">Desactivar</a>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-4 border-top border-secondary pt-3">
+        <span class="text-muted">Total de usuarios: @Model.TotalRegistros</span>
+        
+        <nav aria-label="Paginación de usuarios" data-bs-theme="dark">
+            <ul class="pagination mb-0">
+                <li class="page-item @(Model.TieneAnterior ? "" : "disabled")">
+                    <a class="page-link" asp-action="Index" asp-route-pagina="@(Model.PaginaActual - 1)">Anterior</a>
+                </li>
+                
+                <li class="page-item disabled">
+                    <span class="page-link">@Model.PaginaActual / @Model.TotalPaginas</span>
+                </li>
+                
+                <li class="page-item @(Model.TieneSiguiente ? "" : "disabled")">
+                    <a class="page-link" asp-action="Index" asp-route-pagina="@(Model.PaginaActual + 1)">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+}
