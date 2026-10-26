@@ -1,9 +1,9 @@
-@model ECommerceJuegos.ViewModels.ProductosIndexViewModel
+@model dynamic
 
 <div class="d-flex justify-content-between align-items-center mt-4 border-top border-secondary pt-3">
-    <span class="text-muted">Página @Model.PaginaActual de @Model.TotalPaginas &middot; @Model.TotalRegistros productos</span>
+    <span class="text-muted">Página @Model.PaginaActual de @Model.TotalPaginas &middot; Total: @Model.TotalRegistros</span>
     
-    <nav aria-label="Páginas de productos" data-bs-theme="dark">
+    <nav aria-label="Navegación de páginas" data-bs-theme="dark">
         <ul class="pagination mb-0">
             <li class="page-item @(Model.TieneAnterior ? "" : "disabled")">
                 <a class="page-link" asp-action="@ViewContext.RouteData.Values["action"]" asp-route-pagina="@(Model.PaginaActual - 1)">Anterior</a>
