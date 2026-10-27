@@ -36,7 +36,7 @@ body {
     --accent-hover: #d14800;
     --text-main: #d1d5db;
     --text-title: #f9fafb;
-    --text-muted: #9ca3af;
+    --text-muted: #b0b8c5;
     --border-dark: #333a45;
 }
 
@@ -47,13 +47,13 @@ body {
 }
 
 .card {
-    background-color: var(--card-bg) !important;
-    color: var(--text-main) !important;
-    border: 1px solid var(--border-dark) !important;
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-dark);
 }
 
 h1, h2, h3, h4, h5, h6, .card-title {
-    color: var(--text-title) !important;
+    color: inherit;
 }
 
 .text-muted, .form-text {
@@ -93,7 +93,11 @@ h1, h2, h3, h4, h5, h6, .card-title {
 }
 
 .btn-gamer {
-    background-color: var(--accent-color);
+    --bs-btn-active-bg: #a63800;
+    --bs-btn-active-color: #fff;
+    --bs-btn-disabled-bg: #bd4000;
+    --bs-btn-disabled-color: #fff;
+    background-color: #bd4000;
     color: white;
     font-weight: bold;
     border: none;
@@ -102,20 +106,53 @@ h1, h2, h3, h4, h5, h6, .card-title {
 }
 
 .btn-gamer:hover {
-    background-color: var(--accent-hover);
+    background-color: #a63800;
     color: white;
 }
 
-.form-control, .form-select { 
-    background-color: #1e2128; 
-    border: 1px solid var(--border-dark); 
-    color: var(--text-title); 
+.form-control, .form-select {
+    background-color: #1e2128;
+    border: 1px solid var(--border-dark);
+    color: var(--text-title);
 }
-.form-control:focus, .form-select:focus { 
-    background-color: #252932; 
-    color: white; 
-    border-color: var(--accent-color); 
-    box-shadow: 0 0 0 0.25rem rgba(247, 85, 0, 0.25); 
+.form-control:focus, .form-select:focus {
+    background-color: #252932;
+    color: white;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.25rem rgba(247, 85, 0, 0.25);
 }
 .table { color: var(--text-main); border-color: var(--border-dark); }
 .table-hover tbody tr:hover { color: var(--text-title); background-color: #252932; }
+/* Contraste del tema oscuro, sin forzar encabezados sobre fondos claros. */
+body[data-bs-theme="dark"] { --bs-secondary-color: #b0b8c5; }
+.form-control::placeholder { color: var(--text-muted); opacity: 1; }
+.form-select { color-scheme: dark; }
+.text-danger { color: #ff8793 !important; }
+.text-success { color: #75d6a4 !important; }
+.alert h1, .alert h2, .alert h3, .alert h4, .alert h5, .alert h6 { color: inherit; }
+.modal-content { background-color: var(--card-bg); color: var(--text-main); }
+.modal-header, .modal-footer { border-color: var(--border-dark); }
+.product-description { white-space: pre-line; }
+.purchase-key { overflow-wrap: anywhere; }
+.navbar-email { max-width: 15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.navbar-collapse { min-width: 0; }
+.pagination {
+    --bs-pagination-color: #ff9b66;
+    --bs-pagination-bg: #21252d;
+    --bs-pagination-border-color: #535c6b;
+    --bs-pagination-hover-color: #fff;
+    --bs-pagination-hover-bg: #333a45;
+    --bs-pagination-hover-border-color: #ff9b66;
+    --bs-pagination-focus-color: #fff;
+    --bs-pagination-focus-bg: #333a45;
+    --bs-pagination-active-color: #fff;
+    --bs-pagination-active-bg: #bd4000;
+    --bs-pagination-active-border-color: #bd4000;
+    --bs-pagination-disabled-color: #aeb6c3;
+    --bs-pagination-disabled-bg: #292e38;
+    --bs-pagination-disabled-border-color: #535c6b;
+    gap: .25rem 0;
+}
+@media (max-width: 991.98px) {
+    .navbar-email { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+}

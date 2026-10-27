@@ -1,59 +1,37 @@
-﻿@{
+@{
     ViewData["Title"] = "Inicio";
 }
-
 <div class="container mt-4 mb-5">
-    <!-- Banner Principal -->
-    <div class="p-5 mb-5 rounded-4 shadow-lg text-center" style="background: linear-gradient(135deg, var(--card-bg) 0%, #2a0e00 100%); border: 1px solid var(--border-dark);">
-        <div class="container-fluid py-5">
-            <h1 class="display-4 fw-bold mb-3">Tus juegos favoritos, <span style="color: var(--accent-color);">al mejor precio</span></h1>
-            <p class="col-md-8 mx-auto fs-4 text-muted mb-5">
-                Descubre miles de claves digitales para PC y software. Entrega inmediata, pago seguro y los mejores descuentos de la comunidad.
-            </p>
-            
-            <a href="@Url.Action("Catalogo", "Productos")" class="btn btn-gamer btn-lg px-5 py-3 fs-5 shadow">
+    <div class="p-4 p-md-5 mb-5 rounded-4 shadow-lg text-center" style="background:linear-gradient(135deg, var(--card-bg) 0%, #2a0e00 100%); border:1px solid var(--border-dark);">
+        <div class="container-fluid py-4">
+            <h1 class="display-4 fw-bold mb-3">Tus juegos favoritos, <span style="color:var(--accent-color);">en un solo catálogo</span></h1>
+            <p class="col-md-8 mx-auto fs-4 text-muted mb-5">Explorá juegos y software, realizá una compra simulada y consultá tus claves digitales en el historial. Proyecto académico sin procesamiento de pagos reales.</p>
+            <a href="@Url.Action("Catalogo", "Productos")" class="btn btn-gamer btn-lg px-4 py-3 shadow">
                 <i class="bi bi-controller me-2"></i> Explorar Catálogo
             </a>
         </div>
     </div>
-
     <div class="row g-4 text-center">
         <div class="col-md-4">
-            <div class="card h-100 p-4 border-0 shadow-sm" style="background-color: var(--card-bg); transition: transform 0.2s;">
-                <div class="mb-3">
-                    <i class="bi bi-lightning-charge-fill display-4" style="color: var(--accent-color);"></i>
-                </div>
-                <h3 class="h4 fw-bold">Entrega Inmediata</h3>
-                <p class="text-muted">Recibe tu CD Key al instante en tu historial de compras luego de confirmar el pago.</p>
+            <div class="card h-100 p-4 shadow-sm">
+                <i class="bi bi-key-fill display-4 mb-3" style="color:var(--accent-color);"></i>
+                <h2 class="h4 fw-bold">Claves en tu historial</h2>
+                <p class="text-muted">Cuando completás una compra simulada con stock disponible, la clave queda en tu historial.</p>
             </div>
         </div>
-        
         <div class="col-md-4">
-            <div class="card h-100 p-4 border-0 shadow-sm" style="background-color: var(--card-bg); transition: transform 0.2s;">
-                <div class="mb-3">
-                    <i class="bi bi-shield-check-fill display-4" style="color: var(--accent-color);"></i>
-                </div>
-                <h3 class="h4 fw-bold">Compra Segura</h3>
-                <p class="text-muted">Transacciones 100% protegidas y claves digitales verificadas directamente.</p>
+            <div class="card h-100 p-4 shadow-sm">
+                <i class="bi bi-bag-check display-4 mb-3" style="color:var(--accent-color);"></i>
+                <h2 class="h4 fw-bold">Compra simulada</h2>
+                <p class="text-muted">Ingresá con tu cuenta de Cliente para probar el recorrido de compra del proyecto.</p>
             </div>
         </div>
-        
         <div class="col-md-4">
-            <div class="card h-100 p-4 border-0 shadow-sm" style="background-color: var(--card-bg); transition: transform 0.2s;">
-                <div class="mb-3">
-                    <i class="bi bi-tags-fill display-4" style="color: var(--accent-color);"></i>
-                </div>
-                <h3 class="h4 fw-bold">Ofertas Épicas</h3>
-                <p class="text-muted">Precios inmejorables en títulos AAA, indies y software de productividad.</p>
+            <div class="card h-100 p-4 shadow-sm">
+                <i class="bi bi-chat-square-text display-4 mb-3" style="color:var(--accent-color);"></i>
+                <h2 class="h4 fw-bold">Reseñas de clientes</h2>
+                <p class="text-muted">Calificá y comentá los productos que hayas comprado dentro de la aplicación.</p>
             </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <style>
-        .card:hover {
-            transform: translateY(-5px);
-        }
-    </style>
-}

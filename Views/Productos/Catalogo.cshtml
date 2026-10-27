@@ -5,9 +5,14 @@
 
 <!-- Banner -->
 <div class="mb-5 text-center" style="background: linear-gradient(0deg, rgba(18,20,24,1) 0%, rgba(247,85,0,0.2) 100%); padding: 3rem 0; border-radius: 10px;">
-    <h1 class="display-4 fw-bold">Ofertas Destacadas</h1>
-    <p class="lead text-muted">Las mejores claves digitales al instante.</p>
+    <h1 class="display-4 fw-bold">Catálogo de juegos y software</h1>
+    <p class="lead text-muted">Explorá los productos y consultá la disponibilidad de claves digitales.</p>
 </div>
+
+@if (Model.Productos.Count == 0)
+{
+    <div class="alert alert-secondary text-center" role="status">No hay productos disponibles en el catálogo.</div>
+}
 
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
     @foreach (var producto in Model.Productos)
@@ -29,13 +34,13 @@
                 <div class="card-body d-flex flex-column">
                     <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">@producto.CategoriaNombre</small>
                     <h5 class="card-title mt-1 mb-3 text-truncate" title="@producto.Nombre">@producto.Nombre</h5>
-                    
+
                     <div class="mt-auto">
-                        <div class="d-flex justify-content-between align-items-end mb-3">
+                        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
                             <span class="price-tag">@producto.Precio.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("es-AR"))</span>
-                            <span class="badge bg-dark border border-secondary text-light">Global Key</span>
+                            <span class="badge @(producto.TieneStock ? "bg-success" : "bg-secondary")">@(producto.TieneStock ? "Disponible" : "Sin stock")</span>
                         </div>
-                        
+
                         <a href="@Url.Action("Detalle", "Productos", new { id = producto.ProductoId })" class="btn btn-gamer w-100">
                             <i class="bi bi-cart-plus"></i> Ver Detalles
                         </a>
@@ -46,12 +51,4 @@
     }
 </div>
 
-<!-- La paginación (asegúrate de que los botones de paginación tengan estilo oscuro) -->
-@if (Model.TotalPaginas > 1)
-{
-    <nav class="mt-5">
-        <ul class="pagination justify-content-center" data-bs-theme="dark">
-            <!-- Lógica de paginación existente... -->
-        </ul>
-    </nav>
-}
+<partial name="_Paginacion" model="Model" />

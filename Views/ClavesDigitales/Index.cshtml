@@ -7,11 +7,12 @@
     <h2>Administración de Stock de Claves</h2>
     <hr />
 
-    <button class="btn btn-primary mb-3" @@click="abrirModal(null)" :disabled="ocupado">+ Nueva Clave</button>
+    <button class="btn btn-gamer btn-sm mb-3" @@click="abrirModal(null)" :disabled="ocupado">+ Nueva Clave</button>
 
     <div v-if="error" class="alert alert-danger">{{ error }}</div>
     <div v-if="exito" class="alert alert-success">{{ exito }}</div>
 
+    <div class="table-responsive">
     <table class="table table-dark table-striped table-hover align-middle border-secondary mt-3">
         <thead class="table-dark">
             <tr>
@@ -33,8 +34,8 @@
                     </span>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-warning me-2" @@click="abrirModal(c)" :disabled="c.estado === 'Vendida' || ocupado">Editar</button>
-                    <button class="btn btn-sm btn-danger" @@click="eliminar(c.claveDigitalId)" :disabled="c.estado === 'Vendida' || ocupado">Eliminar</button>
+                    <button class="btn btn-sm btn-outline-warning me-2" @@click="abrirModal(c)" :disabled="c.estado === 'Vendida' || ocupado">Editar</button>
+                    <button class="btn btn-sm btn-outline-danger" @@click="eliminar(c.claveDigitalId)" :disabled="c.estado === 'Vendida' || ocupado">Eliminar</button>
                 </td>
             </tr>
             <tr v-if="claves.length === 0">
@@ -42,32 +43,33 @@
             </tr>
         </tbody>
     </table>
-    <div class="d-flex justify-content-between align-items-center mt-4 border-top border-secondary pt-3">
+    </div>
+    <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mt-4 border-top border-secondary pt-3">
         <span class="text-muted">Página {{ paginaActual }} de {{ totalPaginas }} &middot; Total: {{ totalRegistros }}</span>
-        
+
         <nav aria-label="Navegación de claves" data-bs-theme="dark">
-            <ul class="pagination mb-0">
+            <ul class="pagination flex-wrap mb-0">
                 <li class="page-item" :class="{ disabled: paginaActual <= 1 || ocupado || cargando }">
-                    <a class="page-link" href="#" @@click.prevent="cargarTabla(paginaActual - 1)">Anterior</a>
+                    <button type="button" class="page-link" @@click="cargarTabla(paginaActual - 1)" :disabled="paginaActual <= 1 || ocupado || cargando">Anterior</button>
                 </li>
-                
-                <li class="page-item disabled">
-                    <span class="page-link">{{ paginaActual }} / {{ totalPaginas }}</span>
+
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link">Página {{ paginaActual }} de {{ totalPaginas }}</span>
                 </li>
-                
+
                 <li class="page-item" :class="{ disabled: paginaActual >= totalPaginas || totalPaginas === 0 || ocupado || cargando }">
-                    <a class="page-link" href="#" @@click.prevent="cargarTabla(paginaActual + 1)">Siguiente</a>
+                    <button type="button" class="page-link" @@click="cargarTabla(paginaActual + 1)" :disabled="paginaActual >= totalPaginas || totalPaginas === 0 || ocupado || cargando">Siguiente</button>
                 </li>
             </ul>
         </nav>
     </div>
 
-    <div class="modal" tabindex="-1" :class="{ 'd-block': modalVisible }" style="background: rgba(0,0,0,0.5);">
+    <div class="modal" data-bs-theme="dark" tabindex="-1" :class="{ 'd-block': modalVisible }" style="background: rgba(0,0,0,0.5);">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">{{ editando ? 'Editar Clave' : 'Nueva Clave' }}</h5>
-                    <button type="button" class="btn-close" @@click="cerrarModal"></button>
+                    <button type="button" class="btn-close" aria-label="Cerrar" @@click="cerrarModal"></button>
                 </div>
                 <div class="modal-body">
 
@@ -96,7 +98,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @@click="cerrarModal">Cancelar</button>
-                    <button type="button" class="btn btn-success" @@click="guardar" :disabled="ocupado || !form.productoId || !form.codigo.trim()">Guardar</button>
+                    <button type="button" class="btn btn-gamer" @@click="guardar" :disabled="ocupado || !form.productoId || !form.codigo.trim()">Guardar</button>
                 </div>
             </div>
         </div>

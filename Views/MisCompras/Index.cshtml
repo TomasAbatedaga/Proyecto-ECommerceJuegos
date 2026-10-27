@@ -11,16 +11,16 @@
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info text-center mt-4">
+        <div class="alert alert-secondary text-center mt-4">
             <h4>Aun no has realizado ninguna compra.</h4>
             <p>Explora nuestro catalogo y encuentra tu proximo juego o software favorito</p>
-            <a href="@Url.Action("Catalogo", "Productos")" class="btn btn-primary mt-2">Ir al Catalogo</a>
+            <a href="@Url.Action("Catalogo", "Productos")" class="btn btn-gamer mt-2">Ir al Catalogo</a>
         </div>
     }
     else
     {
         <div class="table-responsive mt-3">
-            <table class="table table-hover align-middle border">
+            <table class="table table-dark table-striped table-hover align-middle border-secondary">
                 <thead class="table-dark">
                     <tr>
                         <th>Orden</th>
@@ -51,10 +51,10 @@
                             <td class="fw-bold">@compra.ProductoNombre</td>
                             <td>$@compra.PrecioPagado.ToString("N2")</td>
                             <td>
-                                <code class="fs-5 text-success bg-dark p-1 rounded">@compra.CodigoClave</code>
+                                <code class="purchase-key fs-5 text-success bg-dark p-1 rounded">@compra.CodigoClave</code>
                             </td>
                             <td>
-                                <a href="@Url.Action("Detalle", "Productos", new { id = compra.ProductoId })" class="btn btn-sm btn-outline-primary">
+                                <a href="@Url.Action("Detalle", "Productos", new { id = compra.ProductoId })" class="btn btn-sm btn-outline-info">
                                     Ver / Reseñar
                                 </a>
                             </td>
@@ -66,12 +66,13 @@
 
         @if (totalPaginas > 1)
         {
-            <nav aria-label="Navegación de compras" class="mt-4">
-                <ul class="pagination justify-content-center">
+            <nav aria-label="Navegación de compras" class="mt-4 border-top border-secondary pt-3" data-bs-theme="dark">
+                <p class="text-muted">Página @paginaActual de @totalPaginas</p>
+                <ul class="pagination flex-wrap justify-content-center">
                     <li class="page-item @(paginaActual == 1 ? "disabled" : "")">
                         <a class="page-link" href="@Url.Action("Index", new { pagina = paginaActual - 1 })">Anterior</a>
                     </li>
-                    
+
                     @for (int i = 1; i <= totalPaginas; i++)
                     {
                         <li class="page-item @(i == paginaActual ? "active" : "")">

@@ -5,7 +5,7 @@
 
 @if (TempData["Error"] is string error) { <div class="alert alert-danger">@error</div> }
 
-<a asp-action="Create" class="btn btn-gamer mb-3"><i class="bi bi-plus-circle"></i> Crear producto</a>
+<a asp-action="Create" class="btn btn-gamer btn-sm mb-3"><i class="bi bi-plus-circle"></i> Crear producto</a>
 
 @if (Model.Productos.Count == 0) { <p>No hay productos.</p> }
 else {
@@ -27,10 +27,10 @@ else {
             <tr>
                 <td>@producto.ProductoId</td>
                 <td>
-                    @if (!string.IsNullOrEmpty(producto.PortadaRuta)) { 
-                        <img src="@producto.PortadaRuta" alt="Portada de @producto.Nombre" style="width:60px;height:80px;object-fit:contain" /> 
-                    } else { 
-                        <span class="text-muted">Sin portada</span> 
+                    @if (!string.IsNullOrEmpty(producto.PortadaRuta)) {
+                        <img src="@producto.PortadaRuta" alt="Portada de @producto.Nombre" style="width:60px;height:80px;object-fit:contain" />
+                    } else {
+                        <span class="text-muted">Sin portada</span>
                     }
                 </td>
                 <td>@producto.Nombre</td>
@@ -41,8 +41,8 @@ else {
                     <div class="btn-group" role="group">
                         <a asp-action="Details" asp-route-id="@producto.ProductoId" class="btn btn-sm btn-outline-info">Detalles</a>
                         <a asp-action="Edit" asp-route-id="@producto.ProductoId" class="btn btn-sm btn-outline-warning">Editar</a>
-                        @if (producto.EstadoActivo) { 
-                            <a asp-action="Delete" asp-route-id="@producto.ProductoId" class="btn btn-sm btn-outline-danger">Desactivar</a> 
+                        @if (producto.EstadoActivo) {
+                            <a asp-action="Delete" asp-route-id="@producto.ProductoId" class="btn btn-sm btn-outline-danger">Desactivar</a>
                         }
                     </div>
                 </td>
