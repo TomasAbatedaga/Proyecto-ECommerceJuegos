@@ -61,8 +61,8 @@ El script SQL incluye dos usuarios preconfigurados para probar los distintos rol
 | Requerimiento Mínimo | Estado | Enlace al Código / Controladores | Evidencia (Captura / GIF / Video) |
 | :--- | :--- | :--- | :--- |
 | **1. 4 Tablas y Relación 1:N** | ✅ Cumplido | [script.sql](./database/script.sql) | Diagrama DER adjunto en `/assets/diagrama.png` |
-| **2. Login, Roles y Avatar** | ✅ Cumplido | [UsuariosController.cs](./Controllers/UsuariosController.cs) | Captura de pantalla de perfil con avatar cargado |
-| **3. Manejo de Archivos (Extra)** | ✅ Cumplido | [ProductosController.cs](./Controllers/ProductosController.cs) | Video corto / GIF mostrando subida de imagen de portada |
+| **2. Login, Roles y Avatar** | ✅ Cumplido | [UsuariosController.cs](./Controllers/UsuariosController.cs) | Captura de perfil con avatar adjunto en `/assets/perfil con avatar.png` |
+| **3. Manejo de Archivos (Extra)** | ✅ Cumplido | [ProductosController.cs](./Controllers/ProductosController.cs) | Video mostrando subida de imagen de portada `/assets/subida de imagen de portada.mp4` |
 | **4. ABM en Vue.js + AJAX** | ✅ Cumplido | [Index.cshtml](./Views/ClavesDigitales/Index.cshtml) | Video corto / GIF del ABM dinámico de Claves Digitales |
 | **5. Paginado por Servidor** | ✅ Cumplido | [RepositorioProducto.cs](./Repositories/RepositorioProducto.cs) | Captura del inspector de red enviando `pagina=2` en el catálogo |
 | **6. Selección Asíncrona (AJAX)** | ✅ Cumplido | [ClavesDigitalesController.cs](./Controllers/ClavesDigitalesController.cs) | GIF buscando productos por nombre al crear una nueva clave |
