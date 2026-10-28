@@ -3,6 +3,8 @@
     ViewData["Title"] = "Mis Compras";
     int paginaActual = ViewBag.PaginaActual != null ? (int)ViewBag.PaginaActual : 1;
     int totalPaginas = ViewBag.TotalPaginas != null ? (int)ViewBag.TotalPaginas : 1;
+    int inicio = Math.Max(1, paginaActual - 2);
+    int fin = Math.Min(totalPaginas, paginaActual + 2);
 }
 
 <div class="container mt-4">
@@ -73,13 +75,29 @@
                         <a class="page-link" href="@Url.Action("Index", new { pagina = paginaActual - 1 })">Anterior</a>
                     </li>
 
-                    @for (int i = 1; i <= totalPaginas; i++)
+                    @if (inicio > 1)
                     {
-                        <li class="page-item @(i == paginaActual ? "active" : "")">
+                        <li class="page-item"><a class="page-link" asp-action="Index" asp-route-pagina="1">1</a></li>
+                        @if (inicio > 2)
+                        {
+                            <li class="page-item disabled"><span class="page-link" aria-disabled="true">&hellip;</span></li>
+                        }
+                    }
+                    @for (int i = inicio; i <= fin; i++)
+                    {
+                        <li class="page-item @(i == paginaActual ? "active" : "")" aria-current="@(i == paginaActual ? "page" : null)">
                             <a class="page-link" href="@Url.Action("Index", new { pagina = i })">@i</a>
                         </li>
                     }
 
+                    @if (fin < totalPaginas)
+                    {
+                        @if (fin < totalPaginas - 1)
+                        {
+                            <li class="page-item disabled"><span class="page-link" aria-disabled="true">&hellip;</span></li>
+                        }
+                        <li class="page-item"><a class="page-link" asp-action="Index" asp-route-pagina="@totalPaginas">@totalPaginas</a></li>
+                    }
                     <li class="page-item @(paginaActual == totalPaginas ? "disabled" : "")">
                         <a class="page-link" href="@Url.Action("Index", new { pagina = paginaActual + 1 })">Siguiente</a>
                     </li>

@@ -1,4 +1,10 @@
 @model dynamic
+@{
+    int actual = Model.PaginaActual;
+    int total = Model.TotalPaginas;
+    int inicio = Math.Max(1, actual - 2);
+    int fin = Math.Min(total, actual + 2);
+}
 
 <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mt-4 border-top border-secondary pt-3">
     <span class="text-muted">Página @Model.PaginaActual de @Model.TotalPaginas &middot; Total: @Model.TotalRegistros</span>
@@ -16,9 +22,35 @@
                 }
             </li>
 
-            <li class="page-item active" aria-current="page">
-                <span class="page-link">Página @Model.PaginaActual de @Model.TotalPaginas</span>
-            </li>
+            @if (inicio > 1)
+            {
+                <li class="page-item"><a class="page-link" asp-action="@ViewContext.RouteData.Values["action"]" asp-route-pagina="1">1</a></li>
+                @if (inicio > 2)
+                {
+                    <li class="page-item disabled"><span class="page-link" aria-disabled="true">&hellip;</span></li>
+                }
+            }
+            @for (var numero = inicio; numero <= fin; numero++)
+            {
+                <li class="page-item @(numero == actual ? "active" : "")" aria-current="@(numero == actual ? "page" : null)">
+                    @if (numero == actual)
+                    {
+                        <span class="page-link">@numero</span>
+                    }
+                    else
+                    {
+                        <a class="page-link" asp-action="@ViewContext.RouteData.Values["action"]" asp-route-pagina="@numero">@numero</a>
+                    }
+                </li>
+            }
+            @if (fin < total)
+            {
+                @if (fin < total - 1)
+                {
+                    <li class="page-item disabled"><span class="page-link" aria-disabled="true">&hellip;</span></li>
+                }
+                <li class="page-item"><a class="page-link" asp-action="@ViewContext.RouteData.Values["action"]" asp-route-pagina="@total">@total</a></li>
+            }
 
             <li class="page-item @(Model.TieneSiguiente ? "" : "disabled")">
                 @if (Model.TieneSiguiente)

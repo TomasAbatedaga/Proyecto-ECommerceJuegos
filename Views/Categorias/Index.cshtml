@@ -25,9 +25,9 @@ else {
                 <td>@categoria.Nombre</td>
                 <td>
                     <div class="btn-group" role="group">
-                        <a asp-action="Details" asp-route-id="@categoria.CategoriaId" class="btn btn-sm btn-outline-info">Detalles</a>
-                        <a asp-action="Edit" asp-route-id="@categoria.CategoriaId" class="btn btn-sm btn-outline-warning">Editar</a>
-                        <a asp-action="Delete" asp-route-id="@categoria.CategoriaId" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                        <a asp-action="Details" asp-route-id="@categoria.CategoriaId" class="btn btn-icon btn-sm btn-outline-info" title="Detalles" aria-label="Detalles"><i class="bi bi-info-circle" aria-hidden="true"></i></a>
+                        <a asp-action="Edit" asp-route-id="@categoria.CategoriaId" class="btn btn-icon btn-sm btn-outline-warning" title="Editar" aria-label="Editar"><i class="bi bi-pencil-square" aria-hidden="true"></i></a>
+                        <a asp-action="Delete" asp-route-id="@categoria.CategoriaId" class="btn btn-icon btn-sm btn-outline-danger" title="Eliminar" aria-label="Eliminar"><i class="bi bi-trash" aria-hidden="true"></i></a>
                     </div>
                 </td>
             </tr>

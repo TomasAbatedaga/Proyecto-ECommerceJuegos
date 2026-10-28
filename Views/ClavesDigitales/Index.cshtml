@@ -34,8 +34,8 @@
                     </span>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-outline-warning me-2" @@click="abrirModal(c)" :disabled="c.estado === 'Vendida' || ocupado">Editar</button>
-                    <button class="btn btn-sm btn-outline-danger" @@click="eliminar(c.claveDigitalId)" :disabled="c.estado === 'Vendida' || ocupado">Eliminar</button>
+                    <button class="btn btn-icon btn-sm btn-outline-warning me-2" @@click="abrirModal(c)" :disabled="c.estado === 'Vendida' || ocupado" title="Editar" aria-label="Editar"><i class="bi bi-pencil-square" aria-hidden="true"></i></button>
+                    <button class="btn btn-icon btn-sm btn-outline-danger" @@click="eliminar(c.claveDigitalId)" :disabled="c.estado === 'Vendida' || ocupado" title="Eliminar" aria-label="Eliminar"><i class="bi bi-trash" aria-hidden="true"></i></button>
                 </td>
             </tr>
             <tr v-if="claves.length === 0">
@@ -54,7 +54,7 @@
                 </li>
 
                 <li class="page-item active" aria-current="page">
-                    <span class="page-link">Página {{ paginaActual }} de {{ totalPaginas }}</span>
+                    <span class="page-link">{{ paginaActual }}</span>
                 </li>
 
                 <li class="page-item" :class="{ disabled: paginaActual >= totalPaginas || totalPaginas === 0 || ocupado || cargando }">

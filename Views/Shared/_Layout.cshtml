@@ -1,3 +1,12 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    bool IsActive(string targetController, string? targetAction = null) =>
+        string.Equals(controller, targetController, StringComparison.OrdinalIgnoreCase) &&
+        (targetAction == null || string.Equals(action, targetAction, StringComparison.OrdinalIgnoreCase));
+    var catalogoActivo = IsActive("Productos", "Catalogo") || IsActive("Productos", "Detalle");
+    var productosActivos = IsActive("Productos") && !catalogoActivo;
+}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -27,10 +36,10 @@
                 <div id="navbarSupportedContent" class="navbar-collapse collapse d-lg-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1 align-items-lg-center flex-lg-wrap">
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
+                            <a class="nav-link @(IsActive("Home", "Index") ? "active" : "")" aria-current="@(IsActive("Home", "Index") ? "page" : null)" asp-controller="Home" asp-action="Index"><i class="bi bi-house" aria-hidden="true"></i> Inicio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-warning fw-bold" asp-controller="Productos" asp-action="Catalogo">Catálogo</a>
+                            <a class="nav-link @(catalogoActivo ? "active" : "")" aria-current="@(catalogoActivo ? "page" : null)" asp-controller="Productos" asp-action="Catalogo"><i class="bi bi-controller" aria-hidden="true"></i> Catálogo</a>
                         </li>
 
                         @if (User.Identity?.IsAuthenticated == true)
@@ -38,37 +47,34 @@
                             <!-- menu del admin -->
                             @if (User.IsInRole("Administrador"))
                             {
-                                <li class="nav-item"><a class="nav-link" asp-controller="Categorias" asp-action="Index">Categorías</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Productos" asp-action="Index">Productos</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Usuarios" asp-action="Index">Usuarios</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="ClavesDigitales" asp-action="Index">ClavesDigitales</a></li>
+                                <li class="nav-item"><a class="nav-link @(IsActive("Categorias") ? "active" : "")" aria-current="@(IsActive("Categorias") ? "page" : null)" asp-controller="Categorias" asp-action="Index"><i class="bi bi-tags" aria-hidden="true"></i> Categorías</a></li>
+                                <li class="nav-item"><a class="nav-link @(productosActivos ? "active" : "")" aria-current="@(productosActivos ? "page" : null)" asp-controller="Productos" asp-action="Index"><i class="bi bi-box-seam" aria-hidden="true"></i> Productos</a></li>
+                                <li class="nav-item"><a class="nav-link @(IsActive("Usuarios") ? "active" : "")" aria-current="@(IsActive("Usuarios") ? "page" : null)" asp-controller="Usuarios" asp-action="Index"><i class="bi bi-people" aria-hidden="true"></i> Usuarios</a></li>
+                                <li class="nav-item"><a class="nav-link @(IsActive("ClavesDigitales") ? "active" : "")" aria-current="@(IsActive("ClavesDigitales") ? "page" : null)" asp-controller="ClavesDigitales" asp-action="Index"><i class="bi bi-key" aria-hidden="true"></i> Claves Digitales</a></li>
                             }
 
                             <!-- menu del cliente -->
                             @if (User.IsInRole("Cliente"))
                             {
-                                <li class="nav-item"><a class="nav-link" asp-controller="MisCompras" asp-action="Index">Mis Compras</a></li>
+                                <li class="nav-item"><a class="nav-link @(IsActive("MisCompras") ? "active" : "")" aria-current="@(IsActive("MisCompras") ? "page" : null)" asp-controller="MisCompras" asp-action="Index"><i class="bi bi-bag-check" aria-hidden="true"></i> Mis Compras</a></li>
                             }
 
                             <li class="nav-item ms-lg-auto">
-                                <a class="nav-link" asp-controller="Usuarios" asp-action="Perfil">Mi perfil</a>
-                            </li>
-                            <li class="nav-item">
-                                <span class="nav-link navbar-email text-light fw-bold" title="@User.Identity.Name">@User.Identity.Name</span>
+                                <a class="nav-link navbar-profile" asp-controller="Usuarios" asp-action="Perfil" title="Mi perfil" aria-label="Mi perfil"><i class="bi bi-person-circle fs-4" aria-hidden="true"></i></a>
                             </li>
                             <li class="nav-item">
                                 <form asp-controller="Usuarios" asp-action="Logout" method="post" class="d-inline">
-                                    <button type="submit" class="btn nav-link text-danger fw-bold">Cerrar sesión</button>
+                                    <button type="submit" class="btn nav-link text-danger fw-bold"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Cerrar sesión</button>
                                 </form>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item ms-lg-auto">
-                                <a class="nav-link" asp-controller="Usuarios" asp-action="Login">Login</a>
+                                <a class="nav-link @(IsActive("Usuarios", "Login") ? "active" : "")" aria-current="@(IsActive("Usuarios", "Login") ? "page" : null)" asp-controller="Usuarios" asp-action="Login"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Login</a>
                             </li>
                             <li class="nav-item ms-2">
-                                <a class="btn btn-gamer text-white px-4" asp-controller="Usuarios" asp-action="Registro">Registrarse</a>
+                                <a class="nav-link @(IsActive("Usuarios", "Registro") ? "active" : "")" aria-current="@(IsActive("Usuarios", "Registro") ? "page" : null)" asp-controller="Usuarios" asp-action="Registro"><i class="bi bi-person-plus" aria-hidden="true"></i> Registrarse</a>
                             </li>
                         }
                     </ul>

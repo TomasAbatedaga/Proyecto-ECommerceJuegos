@@ -40,11 +40,11 @@ else
                     </td>
                     <td>
                         <div class="btn-group" role="group">
-                            <a asp-action="Details" asp-route-id="@item.UsuarioId" class="btn btn-outline-info btn-sm">Detalles</a>
-                            <a asp-action="Edit" asp-route-id="@item.UsuarioId" class="btn btn-outline-warning btn-sm">Editar</a>
+                            <a asp-action="Details" asp-route-id="@item.UsuarioId" class="btn btn-icon btn-outline-info btn-sm" title="Detalles" aria-label="Detalles"><i class="bi bi-info-circle" aria-hidden="true"></i></a>
+                            <a asp-action="Edit" asp-route-id="@item.UsuarioId" class="btn btn-icon btn-outline-warning btn-sm" title="Editar" aria-label="Editar"><i class="bi bi-pencil-square" aria-hidden="true"></i></a>
                             @if (item.EstadoActivo)
                             {
-                                <a asp-action="Delete" asp-route-id="@item.UsuarioId" class="btn btn-outline-danger btn-sm">Desactivar</a>
+                                <a asp-action="Delete" asp-route-id="@item.UsuarioId" class="btn btn-icon btn-outline-danger btn-sm" title="Desactivar" aria-label="Desactivar"><i class="bi bi-ban" aria-hidden="true"></i></a>
                             }
                         </div>
                     </td>

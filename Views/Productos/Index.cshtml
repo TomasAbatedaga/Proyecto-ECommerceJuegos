@@ -39,10 +39,10 @@ else {
                 <td>@(producto.EstadoActivo ? "Activo" : "Inactivo")</td>
                 <td>
                     <div class="btn-group" role="group">
-                        <a asp-action="Details" asp-route-id="@producto.ProductoId" class="btn btn-sm btn-outline-info">Detalles</a>
-                        <a asp-action="Edit" asp-route-id="@producto.ProductoId" class="btn btn-sm btn-outline-warning">Editar</a>
+                        <a asp-action="Details" asp-route-id="@producto.ProductoId" class="btn btn-icon btn-sm btn-outline-info" title="Detalles" aria-label="Detalles"><i class="bi bi-info-circle" aria-hidden="true"></i></a>
+                        <a asp-action="Edit" asp-route-id="@producto.ProductoId" class="btn btn-icon btn-sm btn-outline-warning" title="Editar" aria-label="Editar"><i class="bi bi-pencil-square" aria-hidden="true"></i></a>
                         @if (producto.EstadoActivo) {
-                            <a asp-action="Delete" asp-route-id="@producto.ProductoId" class="btn btn-sm btn-outline-danger">Desactivar</a>
+                            <a asp-action="Delete" asp-route-id="@producto.ProductoId" class="btn btn-icon btn-sm btn-outline-danger" title="Desactivar" aria-label="Desactivar"><i class="bi bi-ban" aria-hidden="true"></i></a>
                         }
                     </div>
                 </td>

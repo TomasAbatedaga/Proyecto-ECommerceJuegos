@@ -112,27 +112,12 @@ Probar también credenciales incorrectas, acceso sin token, token inválido o ve
 
 ## Evidence Matrix
 
-La implementación indicada se referencia al código. Las evidencias finales pendientes no se consideran producidas ni verificadas por esta tabla.
-
-| Requisito | Implementación | Ubicación | Evidencia |
-|---|---|---|---|
-| 1. Siete entidades | Siete tablas con claves y restricciones. | [SQL](database/script.sql), [Models](Models/) | DER disponible; PENDIENTE — captura final del esquema. |
-| 2. Relaciones 1:N | Categorías/Productos, Usuarios/Órdenes y otras FK. | [SQL](database/script.sql) | [DER disponible](assets/diagrama.png). |
-| 3. N:M mediante OrdenDetalle | Órdenes y Productos relacionados por OrdenDetalles. | [OrdenDetalle](Models/OrdenDetalle.cs), [SQL](database/script.sql) | DER disponible; PENDIENTE — captura final del detalle relacionado. |
-| 4. Login | Cookies MVC y validación de credenciales. | [UsuariosController](Controllers/UsuariosController.cs) | PENDIENTE — captura final. |
-| 5. Logout | POST con antiforgery y cierre de cookie. | [UsuariosController](Controllers/UsuariosController.cs), [Layout](Views/Shared/_Layout.cshtml) | PENDIENTE — GIF/video final. |
-| 6. Roles | Administrador y Cliente. | [UsuariosController](Controllers/UsuariosController.cs), [Program](Program.cs) | PENDIENTE — captura final de ambos menús. |
-| 7. Restricciones backend | Autorización por rol, validación y protección de claves vendidas. | [ClavesDigitalesController](Controllers/ClavesDigitalesController.cs), [ComprasController](Controllers/ComprasController.cs) | PENDIENTE — GIF/video final de accesos y rechazos. |
-| 8. Perfil | Consulta del perfil del usuario autenticado. | [Perfil](Views/Usuarios/Perfil.cshtml), [UsuariosController](Controllers/UsuariosController.cs) | PENDIENTE — captura final. |
-| 9. Avatar | Carga de imagen de hasta 2 MB. | [UsuariosController](Controllers/UsuariosController.cs) | [Captura de perfil con avatar](assets/perfil%20con%20avatar.png). |
-| 10. Portada | Carga administrativa de imagen de hasta 5 MB. | [ProductosController](Controllers/ProductosController.cs) | [Video de carga de portada](assets/subida%20de%20imagen%20de%20portada.mp4). |
-| 11. CRUD Vue | Alta, listado, edición y eliminación de claves disponibles. | [Vista Vue](Views/ClavesDigitales/Index.cshtml), [Controlador](Controllers/ClavesDigitalesController.cs) | PENDIENTE — GIF/video final. |
-| 12. AJAX búsqueda de productos | Búsqueda por nombre desde dos caracteres. | [Vista Vue](Views/ClavesDigitales/Index.cshtml), [RepositorioProducto](Repositories/RepositorioProducto.cs) | PENDIENTE — GIF/video final. |
-| 13. Paginación servidor | Usuarios, Productos, Catálogo, Claves y Mis Compras. | [Partial](Views/Shared/_Paginacion.cshtml), [Repositorios](Repositories/) | PENDIENTE — captura final de navegación y solicitud de página. |
-| 14. API REST | Login, productos y compras del usuario. | [Controllers/Api](Controllers/Api/) | PENDIENTE — Postman final. |
-| 15. JWT | Emisión HS256 y validación de firma, emisor, audiencia y expiración. | [AuthController](Controllers/Api/AuthController.cs), [Program](Program.cs) | PENDIENTE — Postman final. |
-| 16. Endpoint protegido | Mis Compras requiere Bearer y Cliente. | [MisComprasApiController](Controllers/Api/MisComprasApiController.cs) | PENDIENTE — Postman final de 200/401/403 y aislamiento de usuarios. |
-| 17. Postman | Colección importable con variables y algunas aserciones. | [Colección](docs/postman/ECommerceJuegos.postman_collection.json) | PENDIENTE — Postman final. |
-| 18. Script SQL | Esquema y datos académicos para una base nueva. | [database/script.sql](database/script.sql) | Archivo disponible; PENDIENTE — captura final de inicialización. |
-| 19. DER | Imagen de las siete entidades y relaciones. | [assets/diagrama.png](assets/diagrama.png) | DER disponible. |
-| 20. Documentación | Requisitos, configuración, ejecución, roles, imágenes y API. | [README](README.md) | Documento disponible; PENDIENTE — captura final de ejecución local. |
+| Requisito | Implementación | Ubicación / Evidencia |
+|---|---|---|
+| Modelo de datos y relaciones | 7 entidades relacionadas, con relaciones 1:N y N:M mediante `OrdenDetalle`. | [DER](assets/diagrama.png) · [script.sql](database/script.sql) |
+| Login, roles y perfil | Login/logout, roles `Administrador` y `Cliente`, perfil y carga de avatar. | [UsuariosController](Controllers/UsuariosController.cs) · [Captura de perfil con avatar](assets/perfil%20con%20avatar.png) |
+| Manejo de archivos | Carga de avatar y portada de productos. | [UsuariosController](Controllers/UsuariosController.cs) · [ProductosController](Controllers/ProductosController.cs) · [Video de carga de portada](assets/subida%20de%20imagen%20de%20portada.mp4) |
+| CRUD Vue + AJAX | Administración de Claves Digitales con Vue 3, altas, edición y eliminación sin recargar la página, más búsqueda AJAX de productos. | [Vista Vue](Views/ClavesDigitales/Index.cshtml) · PENDIENTE — video/GIF final del CRUD |
+| Paginación de servidor | Paginación en Usuarios, Productos, Catálogo, Claves Digitales y Mis Compras. | [Partial de paginación](Views/Shared/_Paginacion.cshtml) · PENDIENTE — captura final |
+| API REST + JWT | Login API, consulta de productos y endpoint protegido de Mis Compras mediante JWT. | [Controllers API](Controllers/Api/) · [Colección Postman](docs/postman/ECommerceJuegos.postman_collection.json) · PENDIENTE — evidencia final en Postman |
+| Documentación y entrega | README, DER, script SQL, colección Postman e instrucciones para ejecutar y configurar el proyecto. | Archivos incluidos en el repositorio |
