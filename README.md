@@ -112,12 +112,12 @@ Probar también credenciales incorrectas, acceso sin token, token inválido o ve
 
 ## Evidence Matrix
 
-| Requisito | Implementación | Ubicación / Evidencia |
-|---|---|---|
-| Modelo de datos y relaciones | 7 entidades relacionadas, con relaciones 1:N y N:M mediante `OrdenDetalle`. | [DER](assets/diagrama.png) · [script.sql](database/script.sql) |
-| Login, roles y perfil | Login/logout, roles `Administrador` y `Cliente`, perfil y carga de avatar. | [UsuariosController](Controllers/UsuariosController.cs) · [Captura de perfil con avatar](assets/perfil%20con%20avatar.png) |
-| Manejo de archivos | Carga de avatar y portada de productos. | [UsuariosController](Controllers/UsuariosController.cs) · [ProductosController](Controllers/ProductosController.cs) · [Video de carga de portada](assets/subida%20de%20imagen%20de%20portada.mp4) |
-| CRUD Vue + AJAX | Administración de Claves Digitales con Vue 3, altas, edición y eliminación sin recargar la página, más búsqueda AJAX de productos. | [Vista Vue](Views/ClavesDigitales/Index.cshtml) · PENDIENTE — video/GIF final del CRUD |
-| Paginación de servidor | Paginación en Usuarios, Productos, Catálogo, Claves Digitales y Mis Compras. | [Partial de paginación](Views/Shared/_Paginacion.cshtml) · PENDIENTE — captura final |
-| API REST + JWT | Login API, consulta de productos y endpoint protegido de Mis Compras mediante JWT. | [Controllers API](Controllers/Api/) · [Colección Postman](docs/postman/ECommerceJuegos.postman_collection.json) · PENDIENTE — evidencia final en Postman |
-| Documentación y entrega | README, DER, script SQL, colección Postman e instrucciones para ejecutar y configurar el proyecto. | Archivos incluidos en el repositorio |
+| Requerimiento Mínimo | Estado | Enlace al Código / Controladores | Evidencia (Captura / GIF / Video) |
+| :--- | :--- | :--- | :--- |
+| **1. 4 Tablas y Relación 1:N** | ✅ Cumplido | [script.sql](./database/script.sql) | [Diagrama DER](assets/diagrama.png)|
+| **2. Login, Roles y Avatar** | ✅ Cumplido | [UsuariosController.cs](./Controllers/UsuariosController.cs) | [Captura de perfil con avatar](assets/perfil%20con%20avatar.png) |
+| **3. Manejo de Archivos (Extra)** | ✅ Cumplido | [ProductosController.cs](./Controllers/ProductosController.cs) | [Video de carga de portada](assets/subida%20de%20imagen%20de%20portada.mp4) |
+| **4. ABM en Vue.js + AJAX** | ✅ Cumplido | [Index.cshtml](./Views/ClavesDigitales/Index.cshtml) | [ABM de Claves Digitales](assets/ABM%20de%20claves%20digitales.mp4) |
+| **5. Paginado por Servidor** | ✅ Cumplido | [RepositorioProducto.cs](./Repositories/RepositorioProducto.cs) | [Captura del inspector de red enviando `pagina=2` en el catálogo](assets/Captura%20de%20paginado=2.mp4) |
+| **6. Selección Asíncrona (AJAX)** | ✅ Cumplido | [ClavesDigitalesController.cs](./Controllers/ClavesDigitalesController.cs) | [Buscar productos por nombre al crear una nueva clave](assets/Buscar%20productos.mp4) |
+| **7. Web API + JWT** | ✅ Cumplido | [AuthController.cs](./Controllers/Api/AuthController.cs) | [Captura de Postman con Bearer Token consumiendo Mis Compras](assets/Captura%20de%20Postman.png) |
