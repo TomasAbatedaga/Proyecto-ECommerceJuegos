@@ -1,11 +1,27 @@
+@inject ECommerceJuegos.Repositories.IRepositorioUsuario _repoUsuario
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
     var action = ViewContext.RouteData.Values["action"]?.ToString();
     bool IsActive(string targetController, string? targetAction = null) =>
         string.Equals(controller, targetController, StringComparison.OrdinalIgnoreCase) &&
         (targetAction == null || string.Equals(action, targetAction, StringComparison.OrdinalIgnoreCase));
+    
     var catalogoActivo = IsActive("Productos", "Catalogo") || IsActive("Productos", "Detalle");
     var productosActivos = IsActive("Productos") && !catalogoActivo;
+
+    string avatarRuta = null;
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        var usuarioActual = _repoUsuario.ObtenerPorEmail(User.Identity.Name);
+
+        // Si tu método se llama distinto y te da error, borra la línea de arriba y usa esta:
+        // var usuarioActual = _repoUsuario.ObtenerTodos().FirstOrDefault(u => u.Email == User.Identity.Name);
+        
+        if (usuarioActual != null && !string.IsNullOrEmpty(usuarioActual.AvatarUrl))
+        {
+            avatarRuta = usuarioActual.AvatarUrl;
+        }
+    }
 }
 <!DOCTYPE html>
 <html lang="es">
@@ -59,17 +75,30 @@
                                 <li class="nav-item"><a class="nav-link @(IsActive("MisCompras") ? "active" : "")" aria-current="@(IsActive("MisCompras") ? "page" : null)" asp-controller="MisCompras" asp-action="Index"><i class="bi bi-bag-check" aria-hidden="true"></i> Mis Compras</a></li>
                             }
 
-                            <li class="nav-item ms-lg-auto">
-                                <a class="nav-link navbar-profile" asp-controller="Usuarios" asp-action="Perfil" title="Mi perfil" aria-label="Mi perfil"><i class="bi bi-person-circle fs-4" aria-hidden="true"></i></a>
+                            <!-- PERFIL Y LOGOUT -->
+                            <li class="nav-item ms-lg-auto d-flex align-items-center">
+                                <a class="nav-link navbar-profile d-flex align-items-center p-1 me-2" asp-controller="Usuarios" asp-action="Perfil" title="Mi perfil" aria-label="Mi perfil">
+                                    @if (!string.IsNullOrEmpty(avatarRuta))
+                                    {
+                                        <!-- Avatar del usuario -->
+                                        <img src="@avatarRuta" alt="Avatar" class="rounded-circle shadow-sm" style="width: 35px; height: 35px; object-fit: cover; border: 2px solid var(--accent-color);" />
+                                    }
+                                    else
+                                    {
+                                        <!-- Ícono por defecto -->
+                                        <i class="bi bi-person-circle fs-4" aria-hidden="true"></i>
+                                    }
+                                </a>
                             </li>
-                            <li class="nav-item">
-                                <form asp-controller="Usuarios" asp-action="Logout" method="post" class="d-inline">
+                            <li class="nav-item d-flex align-items-center">
+                                <form asp-controller="Usuarios" asp-action="Logout" method="post" class="d-inline m-0">
                                     <button type="submit" class="btn nav-link text-danger fw-bold"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Cerrar sesión</button>
                                 </form>
                             </li>
                         }
                         else
                         {
+                            <!-- menu público -->
                             <li class="nav-item ms-lg-auto">
                                 <a class="nav-link @(IsActive("Usuarios", "Login") ? "active" : "")" aria-current="@(IsActive("Usuarios", "Login") ? "page" : null)" asp-controller="Usuarios" asp-action="Login"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Login</a>
                             </li>
